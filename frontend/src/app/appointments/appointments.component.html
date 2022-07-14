@@ -1,0 +1,26 @@
+<!-- Striped rows table with hovers -->
+<pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Sr.no</th>
+                <th>ID</th>
+                <th>Appointment Type</th>
+                <th>Name</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr
+                *ngFor="let appointment of appointments | paginate: {itemsPerPage: itemsPerPage, currentPage: pageNum}; let i = index;">
+                <td>{{i+1}}</td>
+                <td><a>{{appointment.npat_id}}</a></td>
+                <td>{{appointment.appointment_for}}</td>
+                <td>{{appointment.name}}</td>
+                <td>{{appointment.date_of_appointment | date:'medium'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- /Striped rows table with hovers -->

@@ -66,7 +66,7 @@ class Appointment {
 
   static getAppointments() {
     return new Promise((resolve, reject) => {
-      const query = "SELECT * FROM np_appointment_table;";
+      const query = "SELECT * FROM np_appointment_table ORDER BY date_of_appointment;";
       db.query(query, (err, results) => {
         if (err) throw new Error(err.message);
         resolve(results);
@@ -115,7 +115,7 @@ class Appointment {
           reject(err.message);
           return;
         }
-        resolve("Appointment successfully created");
+        resolve("Appointment successfully arranged");
       });
     });
   }

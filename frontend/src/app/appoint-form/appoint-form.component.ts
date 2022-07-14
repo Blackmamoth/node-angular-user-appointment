@@ -1,0 +1,93 @@
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AppointmentService } from './appointment.service';
+import { Appointment } from './Appointment'
+
+@Component({
+  selector: 'app-appoint-form',
+  templateUrl: './appoint-form.component.html',
+  styleUrls: ['./appoint-form.component.css']
+})
+export class AppointFormComponent implements OnInit {
+
+  countryCodes = []
+  appointmentForm: FormGroup;
+
+  clientTypes: string[] = ['Celebrity', 'Celebrity + Private', 'Normal', 'Normal + Private', 'VIP']
+  appointFor: string[] = ['New Registration', 'Re-Registraion', 'Diet Change']
+  packages: string[] = ['1M', '2M', '3M', '4M', '5M', '6M', '7M', '8M', '9M', '10M', '11M', '12M']
+
+  showAlert: boolean = false;
+  alertMessage: string = null;
+  alertType: string = null;
+
+  constructor(private appointmentServices: AppointmentService) { }
+
+  ngOnInit(): void {
+    this.appointmentServices.getCountryCodes().subscribe((dataArray) => {
+      dataArray.forEach(data => this.countryCodes.push(data.dial_code))
+    })
+
+    this.appointmentForm = new FormGroup({
+      'country_code': new FormControl(null, Validators.required),
+      'mobile_num': new FormControl(null, [Validators.required, this.tenDigitsPhoneNumber.bind(this)]),
+      'alternate_mobile_num': new FormControl(null, [Validators.required, this.tenDigitsPhoneNumber.bind(this), this.checkMobileNumAndAlternateNum.bind(this)]),
+      'name': new FormControl(null, Validators.required),
+      'email': new FormControl(null, [Validators.required, Validators.email]),
+      'client_type': new FormControl(null, Validators.required),
+      'appointment_for': new FormControl(null, Validators.required),
+      'package_name': new FormControl(null, Validators.required),
+      'date_of_appointment': new FormControl(null, Validators.required)
+    })
+  }
+
+  onAppoint() {
+    if (this.appointmentForm.valid) {
+      const data: Appointment = { ...this.appointmentForm.value, mobile_num: String(this.appointmentForm.value.mobile_num), alternate_mobile_num: String(this.appointmentForm.value.alternate_mobile_num) };
+      this.appointmentServices.setAppointment(data).subscribe(response => {
+        this.alertMessage = String(response);
+        this.alertType = "success";
+        this.showAlert = true;
+        this.appointmentForm.reset()
+        setTimeout(() => {
+          this.showAlert = false;
+          this.alertMessage = null;
+          this.alertType = null;
+        }, 5000)
+      })
+    } else {
+      this.alertMessage = "Please fill all the fields before submitting the form";
+      this.alertType = "danger"
+      this.showAlert = true;
+      setTimeout(() => {
+        this.alertMessage = null,
+          this.alertType = null,
+          this.showAlert = false
+      }, 5000)
+    }
+  }
+
+  tenDigitsPhoneNumber(control: FormControl): { [s: string]: boolean } {
+    const value = String(control.value)
+    if (value.length !== 10) {
+      return { '10DigitsOnly': true }
+    }
+    return null;
+  }
+
+  checkMobileNumAndAlternateNum(control: FormControl): { [s: string]: boolean } {
+    if (control.value) {
+      const alternateNum = String(control.value);
+      const mobileNum = String(this.appointmentForm.get('mobile_num').value);
+      if (alternateNum === mobileNum) {
+        return { 'numsCannotBeSame': true }
+      }
+    }
+    return null
+  }
+
+  onCloseAlert() {
+    this.showAlert = false;
+  }
+
+}
