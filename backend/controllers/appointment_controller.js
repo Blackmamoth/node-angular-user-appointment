@@ -60,7 +60,6 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     res.status(201).json(appoint);
   } catch (error) {
     res.status(400).json({ error: true, message: error });
-    throw new Error(error);
   }
 });
 

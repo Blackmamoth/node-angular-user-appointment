@@ -8,5 +8,8 @@ export interface Appointment {
     client_type: string,
     appointment_for: string,
     package_name: string,
-    date_of_appointment: Date
+    date_of_appointment: Date,
+    error?: boolean,
+    message?: string,
+    npat_id?: number
 }

@@ -66,7 +66,8 @@ class Appointment {
 
   static getAppointments() {
     return new Promise((resolve, reject) => {
-      const query = "SELECT * FROM np_appointment_table ORDER BY date_of_appointment;";
+      const query =
+        "SELECT * FROM np_appointment_table ORDER BY date_of_appointment;";
       db.query(query, (err, results) => {
         if (err) throw new Error(err.message);
         resolve(results);
@@ -86,14 +87,53 @@ class Appointment {
   }
 
   async checkBusyDates() {
-    const appointments = await Appointment.getAppointments();
-    for (let appointment of appointments) {
-      console.log(appointment.date_of_appointment);
+    if (this.date_of_appointment.getHours() > 20) {
+      return {
+        message: "You can only set appointment before 9PM",
+        success: false,
+      };
     }
+    if (this.date_of_appointment.getHours() < 9) {
+      return {
+        message:
+          "Office opens at 9AM in the morning, you can only set appointment after that",
+        success: false,
+      };
+    }
+    const appointments = await Appointment.getAppointments();
+    // appointments.forEach((appointment) => {
+    //   if (
+    //     appointment.date_of_appointment.getDate() ===
+    //       this.date_of_appointment.getDate() &&
+    //     appointment.date_of_appointment.getHours() ===
+    //       this.date_of_appointment.getHours()
+    //   ) {
+    //     return {
+    //       message:
+    //         "The date and time of appointment you have chosen is already busy",
+    //       success: false,
+    //     };
+    //   }
+    // });
+    for (let appointment of appointments) {
+      if (
+        appointment.date_of_appointment.getDate() ===
+          this.date_of_appointment.getDate() &&
+        appointment.date_of_appointment.getHours() ===
+          this.date_of_appointment.getHours()
+      ) {
+        return {
+          message:
+            "The date and time of appointment you have chosen is already busy",
+          success: false,
+        };
+      }
+    }
+    return { success: true };
   }
 
   setAppointment() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.checkIfMobileNumsEqual()) {
         reject("Mobile number and alternate mobile number should be different");
         return;
@@ -106,6 +146,11 @@ class Appointment {
       }
       if (!this.validateEmail()) {
         reject("Please provide a valid email address");
+        return;
+      }
+      const validDate = await this.checkBusyDates();
+      if (validDate.success === false) {
+        reject(validDate.message);
         return;
       }
       const query =

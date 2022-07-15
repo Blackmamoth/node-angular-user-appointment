@@ -41,29 +41,35 @@ export class AppointFormComponent implements OnInit {
     })
   }
 
+  clearAlert() {
+    setTimeout(() => {
+      this.showAlert = false;
+      this.alertMessage = null;
+      this.alertType = null;
+    }, 5000)
+  }
+
   onAppoint() {
     if (this.appointmentForm.valid) {
       const data: Appointment = { ...this.appointmentForm.value, mobile_num: String(this.appointmentForm.value.mobile_num), alternate_mobile_num: String(this.appointmentForm.value.alternate_mobile_num) };
-      this.appointmentServices.setAppointment(data).subscribe(response => {
-        this.alertMessage = String(response);
-        this.alertType = "success";
+      this.appointmentServices.setAppointment(data).subscribe((response) => {
+        if (response) {
+          this.alertMessage = String(response);
+          this.alertType = "success";
+          this.showAlert = true;
+          this.clearAlert()
+        }
+      }, (err) => {
+        this.alertMessage = err.error.message;
+        this.alertType = "danger";
         this.showAlert = true;
-        this.appointmentForm.reset()
-        setTimeout(() => {
-          this.showAlert = false;
-          this.alertMessage = null;
-          this.alertType = null;
-        }, 5000)
+        this.clearAlert()
       })
     } else {
       this.alertMessage = "Please fill all the fields before submitting the form";
       this.alertType = "danger"
       this.showAlert = true;
-      setTimeout(() => {
-        this.alertMessage = null,
-          this.alertType = null,
-          this.showAlert = false
-      }, 5000)
+      this.clearAlert()
     }
   }
 

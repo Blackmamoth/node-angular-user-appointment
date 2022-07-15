@@ -57,6 +57,10 @@
                 <span class="help-block" *ngIf="appointmentForm.get('alternate_mobile_num').errors['10DigitsOnly']">
                     Phone number must contain 10 digits only
                 </span>
+
+                <span class="help-block" *ngIf="appointmentForm.get('alternate_mobile_num').errors['numsCannotBeSame']">
+                    Mobile number and alternate mobile number cannot be same
+                </span>
             </span>
 
         </div>
