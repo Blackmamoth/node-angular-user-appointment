@@ -58,7 +58,8 @@ export class AppointFormComponent implements OnInit {
           this.alertType = "success";
           this.showAlert = true;
           this.clearAlert()
-        }
+	  this.appointmentForm.reset();
+	}
       }, (err) => {
         this.alertMessage = err.error.message;
         this.alertType = "danger";
