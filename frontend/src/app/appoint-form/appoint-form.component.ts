@@ -58,8 +58,8 @@ export class AppointFormComponent implements OnInit {
           this.alertType = "success";
           this.showAlert = true;
           this.clearAlert()
-	  this.appointmentForm.reset();
-	}
+          this.appointmentForm.reset();
+        }
       }, (err) => {
         this.alertMessage = err.error.message;
         this.alertType = "danger";
@@ -72,6 +72,19 @@ export class AppointFormComponent implements OnInit {
       this.showAlert = true;
       this.clearAlert()
     }
+  }
+
+  checkExistingUser() {
+    const mobile_num = this.appointmentForm.get('mobile_num').value;
+    let appointment: Appointment;
+    this.appointmentServices.getAppointmentsData().subscribe(data => {
+      appointment = data.filter(item => item.mobile_num === mobile_num.toString())[0];
+      if (appointment) {
+        appointment = { country_code: appointment.country_code, mobile_num: appointment.mobile_num, alternate_mobile_num: appointment.alternate_mobile_num, name: appointment.name, email: appointment.email, client_type: appointment.client_type, appointment_for: appointment.appointment_for, package_name: appointment.package, date_of_appointment: null };
+        this.appointmentForm.patchValue(appointment)
+      }
+
+    })
   }
 
   tenDigitsPhoneNumber(control: FormControl): { [s: string]: boolean } {

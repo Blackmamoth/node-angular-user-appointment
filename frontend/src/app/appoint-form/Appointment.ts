@@ -11,5 +11,6 @@ export interface Appointment {
     date_of_appointment: Date,
     error?: boolean,
     message?: string,
-    npat_id?: number
+    npat_id?: number,
+    package?: string,
 }

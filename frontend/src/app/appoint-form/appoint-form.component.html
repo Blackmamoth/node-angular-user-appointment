@@ -26,8 +26,8 @@
         <div class="form-group">
             <label for="mobileNum" class="col-sm-2 control-label">Client phone number</label>
             <div class="col-sm-6">
-                <input type="number" id="mobileNum" placeholder="Enter Your Mobile Number" class="form-control"
-                    formControlName="mobile_num">
+                <input type="number" id="mobileNum" (keyup)="checkExistingUser()" placeholder="Enter Your Mobile Number"
+                    class="form-control" formControlName="mobile_num">
             </div>
 
             <span *ngIf="!appointmentForm.get('mobile_num').valid && appointmentForm.get('mobile_num').touched">
