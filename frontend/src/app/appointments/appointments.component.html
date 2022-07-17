@@ -1,63 +1,7 @@
-<div class="tab-pane">
-    <form class="row" [formGroup]="searchForm" style="margin: 0 auto; padding: 0.5em;">
-
-        <!-- Widget block -->
-        <div class="col-sm-3 col-xs-6">
-            <input type="text" class="form-control" (keyup)="searchFilter()" formControlName="id" placeholder="User ID">
-        </div>
-        <!-- /Widget block -->
-
-        <!-- Widget block -->
-        <div class="col-sm-3 col-xs-6">
-            <select class="form-control" formControlName="appointmentFor" (change)="searchFilter()">
-                <option *ngFor="let type of appointFor" value="{{type}}">
-                    {{type}}</option>
-            </select>
-        </div>
-        <!-- /Widget block -->
-
-        <!-- Widget block -->
-        <div class="col-sm-3 col-xs-6">
-            <input type="text" class="form-control" formControlName="name" (keyup)="searchFilter()" placeholder="Name">
-        </div>
-        <!-- /Widget block -->
-
-    </form>
+<div>
+    <div>
+        <a class="btn btn-inverse" routerLinkActive="btn-danger" (click)="toTable()">Table</a>
+        <button class="btn btn-inverse" style="float: right;" (click)="toCalendar()">Calendar</button>
+    </div>
+    <router-outlet></router-outlet>
 </div>
-
-<!-- Striped rows table with hovers -->
-<pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Sr.no</th>
-                <th>ID</th>
-                <th>Appointment Type</th>
-                <th>Name</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody *ngIf="noFilter">
-            <tr
-                *ngFor="let appointment of appointments | paginate: {itemsPerPage: itemsPerPage, currentPage: pageNum}; let i = index;">
-                <td>{{i+1}}</td>
-                <td><a>{{appointment.npat_id}}</a></td>
-                <td>{{appointment.appointment_for}}</td>
-                <td>{{appointment.name}}</td>
-                <td>{{appointment.date_of_appointment | date:'medium'}}</td>
-            </tr>
-        </tbody>
-        <tbody *ngIf="!noFilter">
-            <tr
-                *ngFor="let appointment of filteredAppointments | paginate: {itemsPerPage: itemsPerPage, currentPage: pageNum}; let i = index;">
-                <td>{{i+1}}</td>
-                <td><a>{{appointment.npat_id}}</a></td>
-                <td>{{appointment.appointment_for}}</td>
-                <td>{{appointment.name}}</td>
-                <td>{{appointment.date_of_appointment | date:'medium'}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<!-- /Striped rows table with hovers -->
