@@ -14,7 +14,7 @@ export class AppointFormComponent implements OnInit {
   appointmentForm: FormGroup;
 
   clientTypes: string[] = ['Celebrity', 'Celebrity + Private', 'Normal', 'Normal + Private', 'VIP']
-  appointFor: string[] = ['New Registration', 'Re-Registraion', 'Diet Change']
+  appointFor: string[] = ['New Registration', 'Re Registration', 'Diet Change']
   packages: string[] = ['1M', '2M', '3M', '4M', '5M', '6M', '7M', '8M', '9M', '10M', '11M', '12M']
 
   showAlert: boolean = false;

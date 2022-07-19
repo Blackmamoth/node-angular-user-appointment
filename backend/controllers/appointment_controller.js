@@ -63,8 +63,14 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
   }
 });
 
+const registrationCount_xhr = asyncHandler(async (req, res) => {
+  const count = await Appointment.registrationCounts();
+  res.json(count);
+});
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
   setAppointment_xhr,
+  registrationCount_xhr,
 };

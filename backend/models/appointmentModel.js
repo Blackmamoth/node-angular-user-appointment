@@ -44,6 +44,24 @@ class Appointment {
     return false;
   }
 
+  static getDates() {
+    return new Promise((resolve, reject) => {
+      const query =
+        "SELECT date_of_appointment, appointment_for FROM np_appointment_table;";
+      const dates = [];
+      db.query(query, (err, results) => {
+        if (err) throw new Error(err.message);
+        results.forEach((date) =>
+          dates.push({
+            date: date.date_of_appointment,
+            title: date.appointment_for,
+          })
+        );
+        resolve(dates);
+      });
+    });
+  }
+
   validateMobileNumAndAlternateNum() {
     const pattern = /\d{10}/; // pattern to check if the mobile num and alternate mobile num have 10 digits
     if (
@@ -62,6 +80,13 @@ class Appointment {
       return true;
     }
     return false;
+  }
+
+  static registrationCounts() {
+    return new Promise(async (resolve, reject) => {
+      const dates = await Appointment.getDates();
+      resolve(dates);
+    });
   }
 
   static getAppointments() {
@@ -101,20 +126,6 @@ class Appointment {
       };
     }
     const appointments = await Appointment.getAppointments();
-    // appointments.forEach((appointment) => {
-    //   if (
-    //     appointment.date_of_appointment.getDate() ===
-    //       this.date_of_appointment.getDate() &&
-    //     appointment.date_of_appointment.getHours() ===
-    //       this.date_of_appointment.getHours()
-    //   ) {
-    //     return {
-    //       message:
-    //         "The date and time of appointment you have chosen is already busy",
-    //       success: false,
-    //     };
-    //   }
-    // });
     for (let appointment of appointments) {
       if (
         appointment.date_of_appointment.getDate() ===

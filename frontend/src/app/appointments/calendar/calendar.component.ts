@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CalendarOptions } from '@fullcalendar/angular'
-import { Appointment } from 'src/app/appoint-form/Appointment';
+import { CalendarOptions, DateEnv } from '@fullcalendar/angular'
 import { AppointmentService } from 'src/app/appoint-form/appointment.service';
 
 @Component({
@@ -11,22 +10,28 @@ import { AppointmentService } from 'src/app/appoint-form/appointment.service';
 export class CalendarComponent implements OnInit {
 
   calendarOptions: CalendarOptions = {
-    initialView: 'dayGridMonth'
+    initialView: 'dayGridMonth',
+    eventClick: this.handleEventClick.bind(this)
   }
 
-  appointments: object[] = [];
+  dates: string[] = [];
+  appointFor: string[] = ['NR', 'RR', 'DC']
+  counts: any[] = [];
 
   constructor(private appointmentService: AppointmentService) { }
 
   ngOnInit(): void {
-    this.appointmentService.getAppointmentsData().subscribe(data => {
-      for (let item of data) {
-        let date = item.date_of_appointment;
-        let title = item.appointment_for;
-        this.appointments.push({ title, date })
-      }
-      this.calendarOptions.events = [...this.appointments]
+    this.appointmentService.getRegistrationCount().subscribe(response => {
+      this.calendarOptions.events = response
     })
+  }
+
+  handleEventClick(arg) {
+    const date = new Date(arg.event.start);
+    const appointmentFor = arg.event._def.title;
+    const localDate = date.toLocaleDateString();
+    const localTime = date.toLocaleTimeString();
+    alert(`Appointment for ${appointmentFor} on ${localDate} at ${localTime}`);
   }
 
 }

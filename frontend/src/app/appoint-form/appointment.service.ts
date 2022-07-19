@@ -34,4 +34,8 @@ export class AppointmentService {
     return this.http.post<Appointment>(this.baseUrl, data, this.httpOptions);
   }
 
+  getRegistrationCount(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/count`)
+  }
+
 }
