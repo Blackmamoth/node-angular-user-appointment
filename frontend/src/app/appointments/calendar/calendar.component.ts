@@ -11,28 +11,33 @@ export class CalendarComponent implements OnInit {
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
-    eventClick: this.handleEventClick.bind(this)
   }
 
-  events: any[] = []
+  appointments: object[] = [];
+
+  events: { date: string, title: string }[] = []
 
   constructor(private appointmentService: AppointmentService) { }
 
   ngOnInit(): void {
-    this.appointmentService.getAppointmentsData().subscribe(data => {
-      data.forEach(item => {
-        this.events.push({ date: item.date_of_appointment.toString().split('T')[0], title: item.appointment_for })
+    this.appointmentService.getRegistrationCount().subscribe((response) => {
+      response.forEach(item => {
+        this.events.push({ date: item.Date.split('T')[0], title: `${item['Appointment Type']} = ${item.Count}` })
       })
       this.calendarOptions.events = this.events
     })
   }
 
-  handleEventClick(arg) {
-    const date = new Date(arg.event.start);
-    const appointmentFor = arg.event._def.title;
-    const localDate = date.toLocaleDateString();
-    const localTime = date.toLocaleTimeString();
-    alert(`Appointment for ${appointmentFor} on ${localDate} at ${localTime}`);
+  setEvents() {
+    const array: { date: string, title: string }[] = [];
+    const dates: string[] = [];
+    this.appointmentService.getAppointmentsData().subscribe(data => {
+      data.forEach(item => {
+        array.push({ date: item.date_of_appointment.toString(), title: item.appointment_for });
+        dates.push()
+      })
+    })
+    console.log(array)
   }
 
 }

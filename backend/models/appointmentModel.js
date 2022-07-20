@@ -44,20 +44,13 @@ class Appointment {
     return false;
   }
 
-  static getDates() {
+  static getDates(appointment_for) {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT date_of_appointment, appointment_for FROM np_appointment_table;";
-      const dates = [];
-      db.query(query, (err, results) => {
-        if (err) throw new Error(err.message);
-        results.forEach((date) =>
-          dates.push({
-            date: date.date_of_appointment,
-            title: date.appointment_for,
-          })
-        );
-        resolve(dates);
+        "SELECT COUNT(npat_id) AS Count, DATE(date_of_appointment) AS Date, appointment_for AS `Appointment Type` FROM np_appointment_table WHERE int_delete_flag = 0 AND appointment_for = ? GROUP BY DATE(date_of_appointment);";
+      db.query(query, [appointment_for], (err, results) => {
+        if (err) reject(err.message);
+        resolve(results);
       });
     });
   }
@@ -84,8 +77,19 @@ class Appointment {
 
   static registrationCounts() {
     return new Promise(async (resolve, reject) => {
-      const dates = await Appointment.getDates();
-      resolve(dates);
+      const appointment_types = [
+        "New Registration",
+        "Re Registration",
+        "Diet Change",
+      ];
+      const datesArray = [];
+      for (let i = 0; i < appointment_types.length; i++) {
+        let date = await Appointment.getDates(appointment_types[i]);
+        datesArray.push(date);
+        if (i === appointment_types.length - 1) {
+          resolve(datesArray.flat());
+        }
+      }
     });
   }
 
