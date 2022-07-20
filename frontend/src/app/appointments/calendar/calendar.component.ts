@@ -14,15 +14,16 @@ export class CalendarComponent implements OnInit {
     eventClick: this.handleEventClick.bind(this)
   }
 
-  dates: string[] = [];
-  appointFor: string[] = ['NR', 'RR', 'DC']
-  counts: any[] = [];
+  events: any[] = []
 
   constructor(private appointmentService: AppointmentService) { }
 
   ngOnInit(): void {
-    this.appointmentService.getRegistrationCount().subscribe(response => {
-      this.calendarOptions.events = response
+    this.appointmentService.getAppointmentsData().subscribe(data => {
+      data.forEach(item => {
+        this.events.push({ date: item.date_of_appointment.toString().split('T')[0], title: item.appointment_for })
+      })
+      this.calendarOptions.events = this.events
     })
   }
 
