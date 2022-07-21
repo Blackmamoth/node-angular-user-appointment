@@ -63,9 +63,33 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
   }
 });
 
+const updateAppointment_xhr = asyncHandler(async (req, res) => {
+  const appointment_data = req.body;
+  const updatedAppointment = await Appointment.updateAppointment(
+    req.params.id,
+    appointment_data
+  );
+  res.json(updatedAppointment);
+});
+
 const registrationCount_xhr = asyncHandler(async (req, res) => {
   const count = await Appointment.registrationCounts();
   res.json(count);
+});
+
+const getAppointmentsBetweenDates_xhr = asyncHandler(async (req, res) => {
+  const { date1, date2 } = req.body;
+  if (!date1 || !date2) {
+    return res.status(400).json({
+      error: true,
+      message: "Please provide 2 dates to get appointments between those dates",
+    });
+  }
+  const appointments = await Appointment.getAppointmentsBetweenDates(
+    date1,
+    date2
+  );
+  res.status(200).json(appointments);
 });
 
 module.exports = {
@@ -73,4 +97,6 @@ module.exports = {
   getAppointment_xhr,
   setAppointment_xhr,
   registrationCount_xhr,
+  getAppointmentsBetweenDates_xhr,
+  updateAppointment_xhr,
 };

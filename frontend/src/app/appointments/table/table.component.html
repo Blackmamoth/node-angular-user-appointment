@@ -32,7 +32,6 @@
         <thead>
             <tr>
                 <th>Sr.no</th>
-                <th>ID</th>
                 <th>Appointment Type</th>
                 <th>Name</th>
                 <th>Time</th>
@@ -42,7 +41,6 @@
             <tr
                 *ngFor="let appointment of appointments | paginate: {itemsPerPage: itemsPerPage, currentPage: pageNum}; let i = index;">
                 <td>{{i+1}}</td>
-                <td><a>{{appointment.npat_id}}</a></td>
                 <td>{{appointment.appointment_for}}</td>
                 <td>{{appointment.name}}</td>
                 <td>{{appointment.date_of_appointment | date:'medium'}}</td>
@@ -52,7 +50,6 @@
             <tr
                 *ngFor="let appointment of filteredAppointments | paginate: {itemsPerPage: itemsPerPage, currentPage: pageNum}; let i = index;">
                 <td>{{i+1}}</td>
-                <td><a>{{appointment.npat_id}}</a></td>
                 <td>{{appointment.appointment_for}}</td>
                 <td>{{appointment.name}}</td>
                 <td>{{appointment.date_of_appointment | date:'medium'}}</td>

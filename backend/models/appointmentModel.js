@@ -44,12 +44,34 @@ class Appointment {
     return false;
   }
 
-  static getDates(appointment_for) {
+  checkSlots() {
+    return new Promise((resolve, reject) => {
+      const dayAfter = new Date(this.date_of_appointment);
+      dayAfter.setDate(dayAfter.getDate() + 1);
+      const dates = [
+        this.date_of_appointment.toISOString().split("T")[0],
+        dayAfter.toISOString().split("T")[0],
+      ];
+      const query =
+        "SELECT COUNT(npat_id) AS count FROM np_appointment_table WHERE  int_delete_flag = 0 AND date_of_appointment BETWEEN ? AND ?;";
+      db.query(query, dates, (err, results) => {
+        if (err) throw err;
+        const count = results[0]["count"];
+        if (count >= 15) {
+          reject(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  static getAppointmentsBetweenDates(date1, date2) {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT COUNT(npat_id) AS Count, DATE(date_of_appointment) AS Date, appointment_for AS `Appointment Type` FROM np_appointment_table WHERE int_delete_flag = 0 AND appointment_for = ? GROUP BY DATE(date_of_appointment);";
-      db.query(query, [appointment_for], (err, results) => {
-        if (err) reject(err.message);
+        "SELECT * FROM `np_appointment_table` WHERE int_delete_flag = 0 AND DATE(date_of_appointment) BETWEEN ? AND ?;";
+      const dates = [date1, date2];
+      db.query(query, dates, (err, results) => {
         resolve(results);
       });
     });
@@ -77,26 +99,19 @@ class Appointment {
 
   static registrationCounts() {
     return new Promise(async (resolve, reject) => {
-      const appointment_types = [
-        "New Registration",
-        "Re Registration",
-        "Diet Change",
-      ];
-      const datesArray = [];
-      for (let i = 0; i < appointment_types.length; i++) {
-        let date = await Appointment.getDates(appointment_types[i]);
-        datesArray.push(date);
-        if (i === appointment_types.length - 1) {
-          resolve(datesArray.flat());
-        }
-      }
+      const query =
+        "SELECT COUNT(npat_id) AS 'total_appointment_count', COUNT( CASE WHEN appointment_for = 'Re Registration' THEN npat_id END ) AS count_re_registration, COUNT( CASE WHEN appointment_for = 'Diet Change' THEN npat_id END ) AS count_diet_change, COUNT( CASE WHEN appointment_for = 'New Registration' THEN npat_id END ) AS count_new_registration, DATE(date_of_appointment) as 'date_of_appointment' FROM np_appointment_table WHERE int_delete_flag = 0 GROUP BY DATE(date_of_appointment);";
+      db.query(query, (err, result) => {
+        if (err) throw new Error(err.message);
+        resolve(result);
+      });
     });
   }
 
   static getAppointments() {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT * FROM np_appointment_table ORDER BY date_of_appointment;";
+        "SELECT * FROM np_appointment_table WHERE int_delete_flag = 0 ORDER BY date_of_appointment;";
       db.query(query, (err, results) => {
         if (err) throw new Error(err.message);
         resolve(results);
@@ -107,7 +122,7 @@ class Appointment {
   static getAppointment(id) {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT * FROM np_appointment_table WHERE npat_id = ? LIMIT 1;";
+        "SELECT * FROM np_appointment_table WHERE npat_id = ? AND int_delete_flag = 0;";
       db.query(query, [id], (err, results) => {
         if (err) throw new Error(err.message);
         resolve(results[0]);
@@ -115,7 +130,72 @@ class Appointment {
     });
   }
 
+  static updateAppointment(id, appointment_data) {
+    return new Promise(async (resolve, reject) => {
+      const appointment = await Appointment.getAppointment(id);
+      const country_code = appointment_data.country_code
+        ? appointment_data.country_code
+        : appointment.country_code;
+      const mobile_num = appointment_data.mobile_num
+        ? appointment_data.mobile_num
+        : appointment.mobile_num;
+      const alternate_mobile_num = appointment_data.alternate_mobile_num
+        ? appointment_data.mobile_num
+        : appointment.alternate_mobile_num;
+      const name = appointment_data.name
+        ? appointment_data.name
+        : appointment.name;
+      const email = appointment_data.email
+        ? appointment_data.email
+        : appointment.email;
+      const client_type = appointment_data.client_type
+        ? appointment_data.client_type
+        : appointment.client_type;
+      const appointment_for = appointment_data.client_type
+        ? appointment_data.client_type
+        : appointment.client_type;
+      const package_name = appointment_data.package_name
+        ? appointment_data.package_name
+        : appointment.package;
+      const date_of_appointment = appointment_data.date_of_appointment
+        ? appointment_data.date_of_appointment
+        : appointment.date_of_appointment;
+      const data = [
+        country_code,
+        mobile_num,
+        alternate_mobile_num,
+        name,
+        email,
+        client_type,
+        appointment_for,
+        package_name,
+        date_of_appointment,
+        id,
+      ];
+      const query =
+        "UPDATE `np_appointment_table` SET `country_code` = ?, `mobile_num` = ?, `alternate_mobile_num` = ?, `name` = ?, `email` = ?, `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
+      db.query(query, data, (err, result) => {
+        if (err) throw new Error(err.message);
+        resolve(result);
+      });
+    });
+  }
+
   async checkBusyDates() {
+    const today = new Date();
+    if (today.toDateString() === this.date_of_appointment.toDateString()) {
+      return {
+        message:
+          "You can only set an appointment atleast a day before the date of appointment",
+        success: false,
+      };
+    }
+    if (this.date_of_appointment.getTime() < today.getTime()) {
+      return {
+        message: "You cannot set appointments in the past",
+        success: false,
+      };
+    }
     if (this.date_of_appointment.getHours() > 20) {
       return {
         message: "You can only set appointment before 9PM",
@@ -166,6 +246,12 @@ class Appointment {
       const validDate = await this.checkBusyDates();
       if (validDate.success === false) {
         reject(validDate.message);
+        return;
+      }
+      if (!this.checkSlots()) {
+        reject(
+          `Appointment slots for date ${this.date_of_appointment.toLocaleDateString()} are full`
+        );
         return;
       }
       const query =

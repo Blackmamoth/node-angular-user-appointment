@@ -22,22 +22,18 @@ export class CalendarComponent implements OnInit {
   ngOnInit(): void {
     this.appointmentService.getRegistrationCount().subscribe((response) => {
       response.forEach(item => {
-        this.events.push({ date: item.Date.split('T')[0], title: `${item['Appointment Type']} = ${item.Count}` })
+        let total = item.count_diet_change + item.count_new_registration + item.count_re_registration
+        this.events.push({ date: item.date_of_appointment.split('T')[0], title: `NR:${item.count_new_registration}` })
+        this.events.push({ date: item.date_of_appointment.split('T')[0], title: `RR:${item.count_re_registration}` })
+        this.events.push({ date: item.date_of_appointment.split('T')[0], title: `DC:${item.count_diet_change}` })
+        this.events.push({ date: item.date_of_appointment.split('T')[0], title: `Available:${15 - total}` })
       })
       this.calendarOptions.events = this.events
     })
   }
 
-  setEvents() {
-    const array: { date: string, title: string }[] = [];
-    const dates: string[] = [];
-    this.appointmentService.getAppointmentsData().subscribe(data => {
-      data.forEach(item => {
-        array.push({ date: item.date_of_appointment.toString(), title: item.appointment_for });
-        dates.push()
-      })
-    })
-    console.log(array)
+  onPopOver(arg) {
+    console.log(arg)
   }
 
 }
