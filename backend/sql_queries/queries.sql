@@ -14,7 +14,7 @@ CREATE TABLE np_appointment_table (
     client_type LONGTEXT NOT NULL,
     appointment_for LONGTEXT NOT NULL,
     package LONGTEXT NOT NULL,
-    date_of_appointment DATE NOT NULL,
+    date_of_appointment DATE NOT NULL UNIQUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     int_delete_flag TINYINT DEFAULT 0,

@@ -11,7 +11,7 @@ const getAppointment_xhr = asyncHandler(async (req, res) => {
   try {
     res.status(200).json({ success: true, message: appointment });
   } catch (error) {
-    res.status(400).json({ error: true, message: error });
+    res.status(400).json({ err: true, message: error });
     throw new Error(error);
   }
 });
@@ -92,6 +92,17 @@ const getAppointmentsBetweenDates_xhr = asyncHandler(async (req, res) => {
   res.status(200).json(appointments);
 });
 
+const deleteAppointment_xhr = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  let appointmentToDelete;
+  try {
+    appointmentToDelete = await Appointment.deleteAppointment(id);
+    res.status(200).json(appointmentToDelete);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
@@ -99,4 +110,5 @@ module.exports = {
   registrationCount_xhr,
   getAppointmentsBetweenDates_xhr,
   updateAppointment_xhr,
+  deleteAppointment_xhr,
 };

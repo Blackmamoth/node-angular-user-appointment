@@ -14,6 +14,7 @@ import { AppointmentsComponent } from './appointments/appointments.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TableComponent } from './appointments/table/table.component';
 import { CalendarComponent } from './appointments/calendar/calendar.component';
+import { AddClientComponent } from './appointments/add-client/add-client.component';
 
 FullCalendarModule.registerPlugins([
   dayGridPlugin,
@@ -27,7 +28,8 @@ FullCalendarModule.registerPlugins([
     AppointFormComponent,
     AppointmentsComponent,
     TableComponent,
-    CalendarComponent
+    CalendarComponent,
+    AddClientComponent
   ],
   imports: [
     BrowserModule,

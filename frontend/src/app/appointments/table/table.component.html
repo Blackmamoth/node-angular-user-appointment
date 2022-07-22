@@ -1,3 +1,9 @@
+<div class="alert alert-{{alertType}} alert-dismissable fade in" *ngIf="showAlert" style="margin: 0.5em;">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true" (click)="onCloseAlert()"
+        title="Close alert">&times;</button>
+    <strong>{{alertMessage}}</strong>
+</div>
+
 <div class="tab-pane">
     <form class="row" [formGroup]="searchForm" style="margin: 0 auto; padding: 0.5em;">
 
@@ -35,6 +41,8 @@
                 <th>Appointment Type</th>
                 <th>Name</th>
                 <th>Time</th>
+                <th>Actions</th>
+                <th>Add Client</th>
             </tr>
         </thead>
         <tbody *ngIf="noFilter">
@@ -44,6 +52,14 @@
                 <td>{{appointment.appointment_for}}</td>
                 <td>{{appointment.name}}</td>
                 <td>{{appointment.date_of_appointment | date:'medium'}}</td>
+                <td>
+                    <span>
+                        <button class="btn btn-success" style="margin: 0.5em;"
+                            (click)="onEdit(appointment)">Edit</button>
+                        <button (click)="onDelete(appointment)" class="btn btn-danger">Delete</button>
+                    </span>
+                </td>
+                <td><button class="btn btn-info">+</button></td>
             </tr>
         </tbody>
         <tbody *ngIf="!noFilter">
@@ -53,6 +69,14 @@
                 <td>{{appointment.appointment_for}}</td>
                 <td>{{appointment.name}}</td>
                 <td>{{appointment.date_of_appointment | date:'medium'}}</td>
+                <td>
+                    <span>
+                        <button class="btn btn-success" style="margin: 0.5em;"
+                            (click)="onEdit(appointment)">Edit</button>
+                        <button (click)="onDelete(appointment)" class="btn btn-danger">Delete</button>
+                    </span>
+                </td>
+                <td><button class="btn btn-info">+</button></td>
             </tr>
         </tbody>
     </table>

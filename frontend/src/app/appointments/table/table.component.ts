@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Appointment } from 'src/app/appoint-form/Appointment';
 import { AppointmentService } from 'src/app/appoint-form/appointment.service';
 
@@ -10,29 +11,37 @@ import { AppointmentService } from 'src/app/appoint-form/appointment.service';
 })
 export class TableComponent implements OnInit {
 
-  constructor(private appointmentServices: AppointmentService) { }
+  constructor(private appointmentServices: AppointmentService, private router: Router, private route: ActivatedRoute) { }
 
   appointments: Appointment[] = [];
 
   pageNum: number;
   itemsPerPage: number = 10;
 
-  appointFor: string[] = ['Appointment type', 'New Registration', 'Re-Registraion', 'Diet Change']
+  appointFor: string[] = ['Appointment type', 'New Registration', 'Re Registraion', 'Diet Change']
 
   searchForm: FormGroup;
 
   filteredAppointments: Appointment[] = [];
   noFilter: boolean = true;
 
+  showAlert: boolean = false;
+  alertMessage: string = null;
+  alertType: string = null;
+
   ngOnInit(): void {
-    this.appointmentServices.getAppointmentsData().subscribe(data => {
-      this.appointments = data;
-    })
+    this.getAppointments()
 
     this.searchForm = new FormGroup({
       'id': new FormControl(null),
       'appointmentFor': new FormControl('Appointment type'),
       'name': new FormControl(null)
+    })
+  }
+
+  getAppointments() {
+    this.appointmentServices.getAppointmentsData().subscribe(data => {
+      this.appointments = data;
     })
   }
 
@@ -75,6 +84,34 @@ export class TableComponent implements OnInit {
 
   pageChanged(pageNum) {
     this.pageNum = pageNum;
+  }
+
+  onCloseAlert() {
+    this.showAlert = false;
+  }
+
+  onDelete(appointment: Appointment) {
+    const proceed = confirm("Are you sure you want to delete this appointment?")
+    if (proceed) {
+      this.appointmentServices.deleteAppointment(appointment.npat_id).subscribe(response => {
+        this.getAppointments()
+        this.showAlert = true;
+        this.alertMessage = response.message;
+        this.alertType = 'success'
+        setTimeout(() => { this.showAlert = false }, 5000)
+      })
+    } else {
+      return;
+    }
+  }
+
+  onEdit(appointment: Appointment) {
+    const proceed = confirm("Do you want to edit this appointment?")
+    if (proceed) {
+      this.router.navigate(['edit', appointment.npat_id], { relativeTo: this.route })
+    } else {
+      return;
+    }
   }
 
 }

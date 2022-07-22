@@ -30,12 +30,24 @@ export class AppointmentService {
     return this.http.get<Appointment[]>(this.baseUrl, this.httpOptions);
   }
 
+  getAppointmentDate(appointment_id): Observable<{ success: boolean, message: Appointment }> {
+    return this.http.get<{ success: boolean, message: Appointment }>(`${this.baseUrl}/${appointment_id}`)
+  }
+
   setAppointment(data): Observable<Appointment> {
     return this.http.post<Appointment>(this.baseUrl, data, this.httpOptions);
   }
 
   getRegistrationCount(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/count`)
+  }
+
+  updateAppointment(appointment: Appointment): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/${appointment.npat_id}`, appointment)
+  }
+
+  deleteAppointment(appointment_id: number): Observable<{ success: boolean, message: string }> {
+    return this.http.delete<{ success: boolean, message: string }>(`${this.baseUrl}/${appointment_id}`)
   }
 
 }

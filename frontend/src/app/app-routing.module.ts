@@ -7,11 +7,14 @@ import { TableComponent } from './appointments/table/table.component'
 
 const routes: Routes = [
   { path: '', redirectTo: 'appointments', pathMatch: 'full' },
-  { path: 'appointment-form', component: AppointFormComponent },
+  {
+    path: 'appointment-form', component: AppointFormComponent
+  },
   {
     path: 'appointments', component: AppointmentsComponent, children: [
       { path: 'table', component: TableComponent },
-      { path: 'calendar', component: CalendarComponent }
+      { path: 'table/edit/:id', component: AppointFormComponent },
+      { path: 'calendar', component: CalendarComponent },
     ]
   }
 ];

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AppointmentService } from './appointment.service';
 import { Appointment } from './Appointment'
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
   selector: 'app-appoint-form',
@@ -21,7 +22,10 @@ export class AppointFormComponent implements OnInit {
   alertMessage: string = null;
   alertType: string = null;
 
-  constructor(private appointmentServices: AppointmentService) { }
+  editMode: boolean = false;
+  appointment_id: number;
+
+  constructor(private appointmentServices: AppointmentService, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit(): void {
     this.appointmentServices.getCountryCodes().subscribe((dataArray) => {
@@ -39,6 +43,20 @@ export class AppointFormComponent implements OnInit {
       'package_name': new FormControl(null, Validators.required),
       'date_of_appointment': new FormControl(null, Validators.required)
     })
+
+    this.route.params.subscribe((params: Params) => {
+      if (params['id']) {
+        this.editMode = true
+        this.appointment_id = +params['id']
+      }
+      if (this.editMode) {
+        this.appointmentServices.getAppointmentDate(this.appointment_id).subscribe(response => {
+          const appointment = response.message;
+          let date = new Date(appointment.date_of_appointment).toISOString().split(':00.')[0]
+          this.appointmentForm.patchValue({ ...appointment, 'date_of_appointment': date, 'package_name': appointment.package, 'appointment_for': appointment.appointment_for })
+        })
+      }
+    })
   }
 
   clearAlert() {
@@ -50,8 +68,8 @@ export class AppointFormComponent implements OnInit {
   }
 
   onAppoint() {
-    if (this.appointmentForm.valid) {
-      const data: Appointment = { ...this.appointmentForm.value, mobile_num: String(this.appointmentForm.value.mobile_num), alternate_mobile_num: String(this.appointmentForm.value.alternate_mobile_num) };
+    const data: Appointment = { ...this.appointmentForm.value, mobile_num: String(this.appointmentForm.value.mobile_num), alternate_mobile_num: String(this.appointmentForm.value.alternate_mobile_num) };
+    if (!this.editMode) {
       this.appointmentServices.setAppointment(data).subscribe((response) => {
         if (response) {
           this.alertMessage = String(response);
@@ -67,10 +85,21 @@ export class AppointFormComponent implements OnInit {
         this.clearAlert()
       })
     } else {
-      this.alertMessage = "Please fill all the fields before submitting the form";
-      this.alertType = "danger"
-      this.showAlert = true;
-      this.clearAlert()
+      data.npat_id = this.appointment_id
+      this.appointmentServices.updateAppointment(data).subscribe((response) => {
+        this.showAlert = true;
+        this.alertMessage = response.message;
+        this.alertType = "success"
+        setTimeout(() => {
+          this.showAlert = false;
+          this.router.navigate(['/appointments', 'table'])
+        }, 2000)
+      }, (err) => {
+        this.alertMessage = err.error.message;
+        this.alertType = "danger";
+        this.showAlert = true;
+        this.clearAlert()
+      })
     }
   }
 

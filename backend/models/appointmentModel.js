@@ -113,7 +113,7 @@ class Appointment {
       const query =
         "SELECT * FROM np_appointment_table WHERE int_delete_flag = 0 ORDER BY date_of_appointment;";
       db.query(query, (err, results) => {
-        if (err) throw new Error(err.message);
+        if (err) reject(err.message);
         resolve(results);
       });
     });
@@ -124,15 +124,46 @@ class Appointment {
       const query =
         "SELECT * FROM np_appointment_table WHERE npat_id = ? AND int_delete_flag = 0;";
       db.query(query, [id], (err, results) => {
-        if (err) throw new Error(err.message);
-        resolve(results[0]);
+        if (err) reject(err.message);
+        if (results.length > 0) {
+          resolve(results[0]);
+        } else {
+          reject("Appointment not found");
+        }
+      });
+    });
+  }
+
+  static deleteAppointment(id) {
+    return new Promise(async (resolve, reject) => {
+      let appointment;
+      try {
+        appointment = await Appointment.getAppointment(id);
+      } catch (error) {
+        reject("Appointment not found");
+        return;
+      }
+      const query =
+        "UPDATE `np_appointment_table` SET `int_delete_flag` = 1 WHERE npat_id = ?;";
+      db.query(query, [id], (err, result) => {
+        if (err) {
+          reject({ success: false, error: err.message });
+          return;
+        }
+        resolve({ success: true, message: "Appointment deleted successfully" });
       });
     });
   }
 
   static updateAppointment(id, appointment_data) {
     return new Promise(async (resolve, reject) => {
-      const appointment = await Appointment.getAppointment(id);
+      let appointment;
+      try {
+        appointment = await Appointment.getAppointment(id);
+      } catch (error) {
+        reject("Appointment not found");
+        return;
+      }
       const country_code = appointment_data.country_code
         ? appointment_data.country_code
         : appointment.country_code;
@@ -175,8 +206,11 @@ class Appointment {
       const query =
         "UPDATE `np_appointment_table` SET `country_code` = ?, `mobile_num` = ?, `alternate_mobile_num` = ?, `name` = ?, `email` = ?, `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
       db.query(query, data, (err, result) => {
-        if (err) throw new Error(err.message);
-        resolve(result);
+        if (err) {
+          reject(err.message);
+          return;
+        }
+        resolve({ message: "Appointment updated successfully", success: true });
       });
     });
   }
@@ -258,7 +292,7 @@ class Appointment {
         "INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
       db.query(query, this.values, (err, results) => {
         if (err) {
-          reject(err.message);
+          reject({ error: err.message, success: false });
           return;
         }
         resolve("Appointment successfully arranged");
