@@ -15,6 +15,8 @@ export class TableComponent implements OnInit {
 
   appointments: Appointment[] = [];
 
+  row: HTMLElement;
+
   pageNum: number;
   itemsPerPage: number = 10;
 
@@ -134,6 +136,20 @@ export class TableComponent implements OnInit {
 
   onAddClient(appointment: Appointment) {
     this.router.navigate(['/appointments', 'add-client', appointment.npat_id])
+  }
+
+  start(event) {
+    this.row = event.target;
+  }
+
+  dragover(e) {
+    e.preventDefault();
+
+    let children = Array.from(e.target.parentNode.parentNode.children);
+    if (children.indexOf(e.target.parentNode) > children.indexOf(this.row))
+      e.target.parentNode.after(this.row);
+    else
+      e.target.parentNode.before(this.row);
   }
 
 }

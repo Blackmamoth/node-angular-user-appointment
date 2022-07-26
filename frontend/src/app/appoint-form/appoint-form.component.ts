@@ -65,7 +65,7 @@ export class AppointFormComponent implements OnInit {
       this.showAlert = false;
       this.alertMessage = null;
       this.alertType = null;
-      this.router.navigate(['/appointments', 'table'])
+      this.router.navigate(['/appointments'])
     }, 2000)
   }
 

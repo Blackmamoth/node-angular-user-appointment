@@ -76,6 +76,10 @@ class Appointment {
         "SELECT * FROM `np_appointment_table` WHERE int_delete_flag = 0 AND DATE(date_of_appointment) BETWEEN ? AND ?;";
       const dates = [date1, date2];
       db.query(query, dates, (err, results) => {
+        if (err) {
+          reject(err.message);
+          return;
+        }
         resolve(results);
       });
     });
