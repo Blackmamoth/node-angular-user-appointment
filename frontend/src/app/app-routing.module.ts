@@ -16,7 +16,7 @@ const routes: Routes = [
       { path: 'table', component: TableComponent },
       { path: 'table/edit/:id', component: AppointFormComponent },
       { path: 'calendar', component: CalendarComponent },
-      { path: 'add-client', component: AddClientComponent }
+      { path: 'add-client/:id', component: AddClientComponent }
     ]
   }
 ];

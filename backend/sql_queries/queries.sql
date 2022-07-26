@@ -14,15 +14,15 @@ CREATE TABLE np_appointment_table (
     client_type LONGTEXT NOT NULL,
     appointment_for LONGTEXT NOT NULL,
     package LONGTEXT NOT NULL,
-    date_of_appointment DATE NOT NULL UNIQUE,
+    date_of_appointment DATETIME NOT NULL UNIQUE,
     user_id BIGINT NOT NULL,
     added_user_id BIGINT NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     int_delete_flag TINYINT DEFAULT 0,
     PRIMARY KEY (npat_id),
-    FOREIGN KEY (user_id) REFERENCES np_user_table(id),
-    FOREIGN KEY (added_user_id) REFERENCES np_user_table(id)
+    FOREIGN KEY (user_id) REFERENCES np_user_table(nput_id),
+    FOREIGN KEY (added_user_id) REFERENCES np_user_table(nput_id)
 );
 
 -- Get All appointments
@@ -35,7 +35,7 @@ SELECT * FROM np_appointment_table WHERE npat_id = ? AND int_delete_flag = 0;
 
 -- Insert an appointment into the table
 
-INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`, `user_id`, `added_user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- Get All the appointments between two dates
 
@@ -56,13 +56,18 @@ SELECT COUNT(npat_id) AS 'total_appointment_count', COUNT( CASE WHEN appointment
 -- User table
 
 CREATE TABLE np_user_table (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    name LONGTEXT NOT NULL UNIQUE,
-    email LONGTEXT NOT NULL UNIQUE,
-    mobile_num LONGTEXT NOT NULL UNIQUE,
-    alternate_mobile_num LONGTEXT NOT NULL UNIQUE,
+    nput_id BIGINT NOT NULL AUTO_INCREMENT,
+    name LONGTEXT NOT NULL,
+    email LONGTEXT NOT NULL,
+    mobile_num LONGTEXT NOT NULL,
+    alternate_mobile_num LONGTEXT NOT NULL,
+    package LONGTEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     int_delete_flag TINYINT DEFAULT 0,
-    PRIMARY KEY (id)
+    PRIMARY KEY (nput_id)
 );
+
+-- Add client to and existing meeting
+
+UPDATE `np_appointment_table` SET  `added_user_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;

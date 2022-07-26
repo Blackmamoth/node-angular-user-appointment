@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Appointment = require("../models/appointmentModel");
+const User = require("../models/userModel");
 
 const getAppointments_xhr = asyncHandler(async (req, res) => {
   const appointments = await Appointment.getAppointments();
@@ -28,6 +29,7 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     package_name,
     date_of_appointment,
   } = req.body;
+
   if (
     !country_code ||
     !mobile_num ||
@@ -44,6 +46,23 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     throw new Error("All fields are required");
   }
 
+  const userByName = await User.findUserByName(name);
+  const userByEmail = await User.findUserByEmail(email);
+  const userByPhone = await User.findUserByPhone(mobile_num);
+
+  if (!userByEmail && !userByName && !userByPhone) {
+    const newUser = new User(
+      name,
+      email,
+      mobile_num,
+      alternate_mobile_num,
+      package_name
+    );
+    await newUser.addUser();
+  }
+
+  const user = await User.findUserByEmail(email);
+
   const appointment = new Appointment(
     country_code,
     mobile_num,
@@ -53,7 +72,8 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     client_type,
     appointment_for,
     package_name,
-    date_of_appointment
+    date_of_appointment,
+    user.nput_id
   );
   try {
     const appoint = await appointment.setAppointment();
@@ -103,6 +123,42 @@ const deleteAppointment_xhr = asyncHandler(async (req, res) => {
   }
 });
 
+const addClientToAppointment_xhr = asyncHandler(async (req, res) => {
+  const {
+    mobile_num,
+    alternate_mobile_num,
+    name,
+    email,
+    package_name,
+    appointmentID,
+  } = req.body;
+  const user = await User.findUserByPhone(mobile_num);
+  if (user) {
+    const addClient = await Appointment.addClient(user.nput_id, appointmentID);
+    if (!addClient) {
+      res.json({ success: false, message: addClient });
+    } else {
+      res.json({ success: true, message: addClient });
+    }
+    console.log(addClient);
+  } else {
+    const newUser = new User(
+      name,
+      email,
+      mobile_num,
+      alternate_mobile_num,
+      package_name
+    );
+    await newUser.addUser();
+    const addClient = await Appointment.addClient(user.nput_id, appointmentID);
+    if (!addClient) {
+      res.json({ success: false, message: addClient });
+    } else {
+      res.json({ success: true, message: addClient });
+    }
+  }
+});
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
@@ -111,4 +167,5 @@ module.exports = {
   getAppointmentsBetweenDates_xhr,
   updateAppointment_xhr,
   deleteAppointment_xhr,
+  addClientToAppointment_xhr,
 };

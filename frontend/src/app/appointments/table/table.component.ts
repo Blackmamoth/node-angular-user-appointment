@@ -29,14 +29,18 @@ export class TableComponent implements OnInit {
   alertMessage: string = null;
   alertType: string = null;
 
+
   ngOnInit(): void {
     this.getAppointments()
 
     this.searchForm = new FormGroup({
       'id': new FormControl(null),
       'appointmentFor': new FormControl('Appointment type'),
-      'name': new FormControl(null)
+      'name': new FormControl(null),
+      'from': new FormControl(null),
+      'to': new FormControl(null)
     })
+
   }
 
   getAppointments() {
@@ -45,14 +49,23 @@ export class TableComponent implements OnInit {
     })
   }
 
+  getAppointmentsByDates() {
+    const values = this.searchForm.value;
+    this.appointmentServices.getAppointmentBetweenDates(values.from, values.to).subscribe((response) => {
+      this.filteredAppointments = response
+      this.noFilter = false;
+      console.log(response)
+    })
+  }
+
   searchFilter() {
     const values = this.searchForm.value;
-    console.log(values.name)
     if (values.id === null && values.name === '' && values.appointmentFor === 'Appointment type') {
       this.filteredAppointments = null;
       this.noFilter = true;
       return;
     }
+
 
     if (values.id) {
       this.filteredAppointments = this.appointments.filter((appointment) => appointment.npat_id === +values.id)
@@ -71,6 +84,11 @@ export class TableComponent implements OnInit {
         this.filteredAppointments.push(value)
       })
     }
+
+    if (values.from && values.to) {
+      this.getAppointmentsByDates()
+    }
+
 
     if (this.filteredAppointments.length > 0) {
       this.noFilter = false;
@@ -98,7 +116,7 @@ export class TableComponent implements OnInit {
         this.showAlert = true;
         this.alertMessage = response.message;
         this.alertType = 'success'
-        setTimeout(() => { this.showAlert = false }, 5000)
+        setTimeout(() => { this.showAlert = false }, 3000)
       })
     } else {
       return;
@@ -112,6 +130,10 @@ export class TableComponent implements OnInit {
     } else {
       return;
     }
+  }
+
+  onAddClient(appointment: Appointment) {
+    this.router.navigate(['/appointments', 'add-client', appointment.npat_id])
   }
 
 }

@@ -8,23 +8,29 @@
     <form class="row" [formGroup]="searchForm" style="margin: 0 auto; padding: 0.5em;">
 
 
-        <div class="col-sm-3 col-xs-6">
+        <div class="col-sm-2 col-xs-6">
             <input type="text" class="form-control" (keyup)="searchFilter()" formControlName="id" placeholder="User ID">
         </div>
 
 
 
-        <div class="col-sm-3 col-xs-6">
+        <div class="col-sm-2 col-xs-6">
             <select class="form-control" formControlName="appointmentFor" (change)="searchFilter()">
                 <option *ngFor="let type of appointFor" value="{{type}}">
                     {{type}}</option>
             </select>
         </div>
 
-
-
-        <div class="col-sm-3 col-xs-6">
+        <div class="col-sm-2 col-xs-6">
             <input type="text" class="form-control" formControlName="name" (keyup)="searchFilter()" placeholder="Name">
+        </div>
+
+        <div class="col-sm-2 col-xs-6">
+            <input type="date" class="form-control" (change)="searchFilter()" formControlName="from">
+        </div>
+
+        <div class="col-sm-2 col-xs-6">
+            <input type="date" class="form-control" (change)="searchFilter()" formControlName="to">
         </div>
 
 
@@ -59,7 +65,10 @@
                         <button (click)="onDelete(appointment)" class="btn btn-danger">Delete</button>
                     </span>
                 </td>
-                <td><button class="btn btn-info">+</button></td>
+                <td>
+                    <button *ngIf="appointment.user_id === appointment.added_user_id" (click)="onAddClient(appointment)" class="btn btn-info">+</button>
+                    <p *ngIf="appointment.user_id !== appointment.added_user_id" class="help-block">Client already added</p>
+                </td>
             </tr>
         </tbody>
         <tbody *ngIf="!noFilter">
@@ -76,7 +85,10 @@
                         <button (click)="onDelete(appointment)" class="btn btn-danger">Delete</button>
                     </span>
                 </td>
-                <td><button class="btn btn-info">+</button></td>
+                <td>
+                    <button *ngIf="appointment.user_id === appointment.added_user_id" (click)="onAddClient(appointment)" class="btn btn-info">+</button>
+                    <p *ngIf="appointment.user_id !== appointment.added_user_id" class="help-block">Client already added</p>
+                </td>
             </tr>
         </tbody>
     </table>

@@ -10,7 +10,8 @@ class Appointment {
     client_type,
     appointment_for,
     package_name,
-    date_of_appointment
+    date_of_appointment,
+    user_id
   ) {
     this.country_code = country_code;
     this.mobile_num = mobile_num;
@@ -21,6 +22,7 @@ class Appointment {
     this.appointment_for = appointment_for;
     this.package_name = package_name;
     this.date_of_appointment = new Date(date_of_appointment);
+    this.user_id = user_id;
   }
 
   get values() {
@@ -34,6 +36,8 @@ class Appointment {
       this.appointment_for,
       this.package_name,
       this.date_of_appointment,
+      this.user_id,
+      this.user_id,
     ];
   }
 
@@ -171,7 +175,7 @@ class Appointment {
         ? appointment_data.mobile_num
         : appointment.mobile_num;
       const alternate_mobile_num = appointment_data.alternate_mobile_num
-        ? appointment_data.mobile_num
+        ? appointment_data.alternate_mobile_num
         : appointment.alternate_mobile_num;
       const name = appointment_data.name
         ? appointment_data.name
@@ -211,6 +215,20 @@ class Appointment {
           return;
         }
         resolve({ message: "Appointment updated successfully", success: true });
+      });
+    });
+  }
+
+  static addClient(user_id, appointment_id) {
+    return new Promise((resolve, reject) => {
+      const query =
+        "UPDATE `np_appointment_table` SET  `added_user_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;";
+      db.query(query, [user_id, appointment_id], (err, result) => {
+        if (err) {
+          reject("Error while adding client to appointment");
+          return;
+        }
+        resolve("Client successfully added to the appointment");
       });
     });
   }
@@ -289,7 +307,7 @@ class Appointment {
         return;
       }
       const query =
-        "INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        "INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`, `user_id`, `added_user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
       db.query(query, this.values, (err, results) => {
         if (err) {
           reject({ error: err.message, success: false });

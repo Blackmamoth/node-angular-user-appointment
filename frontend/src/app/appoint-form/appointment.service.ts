@@ -50,4 +50,12 @@ export class AppointmentService {
     return this.http.delete<{ success: boolean, message: string }>(`${this.baseUrl}/${appointment_id}`)
   }
 
+  addClientToAppointment(data): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/addClient`, data)
+  }
+
+  getAppointmentBetweenDates(date1, date2): Observable<Appointment[]> {
+    return this.http.post<Appointment[]>(`${this.baseUrl}/dates`, { date1, date2 })
+  }
+
 }

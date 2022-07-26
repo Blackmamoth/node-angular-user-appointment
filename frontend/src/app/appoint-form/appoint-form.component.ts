@@ -13,6 +13,7 @@ export class AppointFormComponent implements OnInit {
 
   countryCodes = []
   appointmentForm: FormGroup;
+  existingUser: boolean = false;
 
   clientTypes: string[] = ['Celebrity', 'Celebrity + Private', 'Normal', 'Normal + Private', 'VIP']
   appointFor: string[] = ['New Registration', 'Re Registration', 'Diet Change']
@@ -64,7 +65,8 @@ export class AppointFormComponent implements OnInit {
       this.showAlert = false;
       this.alertMessage = null;
       this.alertType = null;
-    }, 5000)
+      this.router.navigate(['/appointments', 'table'])
+    }, 2000)
   }
 
   onAppoint() {
@@ -90,10 +92,7 @@ export class AppointFormComponent implements OnInit {
         this.showAlert = true;
         this.alertMessage = response.message;
         this.alertType = "success"
-        setTimeout(() => {
-          this.showAlert = false;
-          this.router.navigate(['/appointments', 'table'])
-        }, 2000)
+        this.clearAlert()
       }, (err) => {
         this.alertMessage = err.error.message;
         this.alertType = "danger";
@@ -109,10 +108,10 @@ export class AppointFormComponent implements OnInit {
     this.appointmentServices.getAppointmentsData().subscribe(data => {
       appointment = data.filter(item => item.mobile_num === mobile_num.toString())[0];
       if (appointment) {
-        appointment = { country_code: appointment.country_code, mobile_num: appointment.mobile_num, alternate_mobile_num: appointment.alternate_mobile_num, name: appointment.name, email: appointment.email, client_type: appointment.client_type, appointment_for: appointment.appointment_for, package_name: appointment.package, date_of_appointment: null };
+        appointment = { country_code: appointment.country_code, mobile_num: appointment.mobile_num, alternate_mobile_num: appointment.alternate_mobile_num, name: appointment.name, email: appointment.email, client_type: appointment.client_type, appointment_for: 'Re Registration', package_name: appointment.package, date_of_appointment: null };
         this.appointmentForm.patchValue(appointment)
+        this.appointFor = this.appointFor.filter(item => item != 'New Registration')
       }
-
     })
   }
 
