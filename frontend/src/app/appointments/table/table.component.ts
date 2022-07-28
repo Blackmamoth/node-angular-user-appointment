@@ -18,7 +18,7 @@ export class TableComponent implements OnInit {
   row: HTMLElement;
 
   pageNum: number;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 5;
 
   appointFor: string[] = ['Appointment type', 'New Registration', 'Re Registraion', 'Diet Change']
 
