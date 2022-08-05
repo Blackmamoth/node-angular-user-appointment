@@ -71,3 +71,13 @@ CREATE TABLE np_user_table (
 -- Add client to and existing meeting
 
 UPDATE `np_appointment_table` SET  `added_user_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;
+
+-- TABLE TO HOLD COUNTRY CODE
+
+CREATE TABLE np_country_code_table (
+    npcct_id BIGINT NOT NULL AUTO_INCREMENT,
+    name LONGTEXT NOT NULL,
+    dial_code LONGTEXT NOT NULL,
+    code LONGTEXT NOT NULL,
+    PRIMARY KEY (npcct_id)
+);

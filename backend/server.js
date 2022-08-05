@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/appointments", require("./routes/appointmentRoutes"));
+app.use("/api/countryCodes", require("./routes/countryCodeRoutes"));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));

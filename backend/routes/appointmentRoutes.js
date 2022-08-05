@@ -8,9 +8,11 @@ const {
   updateAppointment_xhr,
   deleteAppointment_xhr,
   addClientToAppointment_xhr,
+  getUser,
 } = require("../controllers/appointment_controller");
 
 router.route("/").get(getAppointments_xhr).post(setAppointment_xhr);
+router.route("/user").post(getUser);
 router.route("/dates").post(getAppointmentsBetweenDates_xhr);
 router.route("/count").get(registrationCount_xhr);
 router.route("/addClient").post(addClientToAppointment_xhr);

@@ -77,7 +77,7 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
   );
   try {
     const appoint = await appointment.setAppointment();
-    res.status(201).json(appoint);
+    res.status(201).json({ success: true, message: appoint });
   } catch (error) {
     res.status(400).json({ error: true, message: error });
   }
@@ -159,6 +159,21 @@ const addClientToAppointment_xhr = asyncHandler(async (req, res) => {
   }
 });
 
+const getUser = asyncHandler(async (req, res) => {
+  const mobile_num = req.body.mobile_num;
+  if (!mobile_num) {
+    return res.status(400).json({
+      error: true,
+      message: "Please provide a mobile number to search user by",
+    });
+  }
+  const user = await User.findUserByPhone(mobile_num);
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
+  }
+  return res.status(200).json({ success: true, user });
+});
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
@@ -168,4 +183,5 @@ module.exports = {
   updateAppointment_xhr,
   deleteAppointment_xhr,
   addClientToAppointment_xhr,
+  getUser,
 };
