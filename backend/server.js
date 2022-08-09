@@ -25,14 +25,6 @@ app.get("/appointments", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// app.get("/appointments/table", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-
-// app.get("/appointments/calendar", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-
 app.get("/appointment-form", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

@@ -174,6 +174,15 @@ const getUser = asyncHandler(async (req, res) => {
   return res.status(200).json({ success: true, user });
 });
 
+const getHolidays_xhr = asyncHandler(async (req, res) => {
+  const holidays = await Appointment.getHolidays();
+  if (holidays) {
+    res.status(200).json(holidays);
+  } else {
+    res.status(400).json({ error: true, message: "Something went wrong" });
+  }
+});
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
@@ -184,4 +193,5 @@ module.exports = {
   deleteAppointment_xhr,
   addClientToAppointment_xhr,
   getUser,
+  getHolidays_xhr,
 };

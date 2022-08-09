@@ -1,0 +1,56 @@
+{
+    "holidays": [
+        {
+            "date": "2022-01-01",
+            "title": "New Year's Day"
+        },
+        {
+            "date": "2022-01-26",
+            "title": "Repulic Day"
+        },
+        {
+            "date": "2022-03-18",
+            "title": "Holi"
+        },
+        {
+            "date": "2022-05-01",
+            "title": "Maharashtra Day"
+        },
+        {
+            "date": "2022-08-11",
+            "title": "Rakshabandhan"
+        },
+        {
+            "date": "2022-08-15",
+            "title": "Independence Day"
+        },
+        {
+            "date": "2022-08-31",
+            "title": "Ganesh chaturthu"
+        },
+        {
+            "date": "2022-10-02",
+            "title": "Gandhi Jayanti"
+        },
+        {
+            "date": "2022-10-05",
+            "title": "Dussehra"
+        },
+        {
+            "date": "2022-10-24",
+            "title": "Diwali Holiday"
+        },
+        {
+            "date": "2022-10-25",
+            "title": "Diwali Holiday"
+        },
+        {
+            "date": "2022-10-26",
+            "title": "Diwali Holiday"
+        },
+        {
+            "date": "2022-12-25",
+            "title": "Christmas"
+        }
+    ]
+}

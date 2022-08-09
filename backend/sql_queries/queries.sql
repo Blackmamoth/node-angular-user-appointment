@@ -81,3 +81,10 @@ CREATE TABLE np_country_code_table (
     code LONGTEXT NOT NULL,
     PRIMARY KEY (npcct_id)
 );
+
+CREATE TABLE np_holidays_table(
+    npht_id BIGINT NOT NULL AUTO_INCREMENT,
+    date LONGTEXT NOT NULL,
+    title LONGTEXT NOT NULL,
+    PRIMARY KEY(npht_id)
+);

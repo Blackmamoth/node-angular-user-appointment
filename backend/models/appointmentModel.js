@@ -70,6 +70,32 @@ class Appointment {
     });
   }
 
+  static getHolidays() {
+    return new Promise((resolve, reject) => {
+      const query = "SELECT * FROM np_holidays_table;";
+      db.query(query, (err, result) => {
+        if (err) {
+          reject(err.message);
+          return;
+        }
+        resolve(result);
+      });
+    });
+  }
+
+  async checkHolidays() {
+    const holidays = await Appointment.getHolidays();
+    const date = this.date_of_appointment
+      .toLocaleDateString()
+      .replace("/", "-");
+    for (let i = 0; i < holidays.length; i++) {
+      if (holidays[i].date === date) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static getAppointmentsBetweenDates(date1, date2) {
     return new Promise((resolve, reject) => {
       const query =
@@ -308,6 +334,10 @@ class Appointment {
         reject(
           `Appointment slots for date ${this.date_of_appointment.toLocaleDateString()} are full`
         );
+        return;
+      }
+      if (this.checkHolidays()) {
+        reject("The day you're trying to set an appointment on is a holiday");
         return;
       }
       const query =
