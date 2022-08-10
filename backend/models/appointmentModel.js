@@ -48,6 +48,25 @@ class Appointment {
     return false;
   }
 
+  checkAvailableSlots(date) {
+    return new Promise((resolve, reject) => {
+      const query =
+        "SELECT COUNT(npat_id) FROM np_appointment_table WHERE DATE_FORMAT(date_of_appointment, '%Y %m %d') LIKE DATE_FORMAT(?, '%Y %m %d');";
+      db.query(query, [date], (err, result) => {
+        if (err) {
+          reject(err.message);
+          return;
+        }
+        if (result.length > 14) {
+          reject(
+            `Appointment slots for date ${date} are full, please pick another date for your appointment`
+          );
+        }
+        resolve(true);
+      });
+    });
+  }
+
   checkSlots() {
     return new Promise((resolve, reject) => {
       const dayAfter = new Date(this.date_of_appointment);
@@ -90,6 +109,7 @@ class Appointment {
       .replace("/", "-");
     for (let i = 0; i < holidays.length; i++) {
       if (holidays[i].date === date) {
+        console.log(holidays[i].date);
         return true;
       }
     }
@@ -310,6 +330,7 @@ class Appointment {
   }
 
   setAppointment() {
+    console.log(this.date_of_appointment);
     return new Promise(async (resolve, reject) => {
       if (this.checkIfMobileNumsEqual()) {
         reject("Mobile number and alternate mobile number should be different");
@@ -336,8 +357,15 @@ class Appointment {
         );
         return;
       }
-      if (this.checkHolidays()) {
+      if (await this.checkHolidays()) {
         reject("The day you're trying to set an appointment on is a holiday");
+        return;
+      }
+      try {
+        this.checkAvailableSlots(this.date_of_appointment.toDateString());
+        console.log("date checked out ");
+      } catch (error) {
+        reject(error);
         return;
       }
       const query =
