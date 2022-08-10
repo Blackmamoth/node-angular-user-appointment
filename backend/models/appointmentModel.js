@@ -48,25 +48,6 @@ class Appointment {
     return false;
   }
 
-  checkAvailableSlots(date) {
-    return new Promise((resolve, reject) => {
-      const query =
-        "SELECT COUNT(npat_id) FROM np_appointment_table WHERE DATE_FORMAT(date_of_appointment, '%Y %m %d') LIKE DATE_FORMAT(?, '%Y %m %d');";
-      db.query(query, [date], (err, result) => {
-        if (err) {
-          reject(err.message);
-          return;
-        }
-        if (result.length > 14) {
-          reject(
-            `Appointment slots for date ${date} are full, please pick another date for your appointment`
-          );
-        }
-        resolve(true);
-      });
-    });
-  }
-
   checkSlots() {
     return new Promise((resolve, reject) => {
       const dayAfter = new Date(this.date_of_appointment);
@@ -78,7 +59,10 @@ class Appointment {
       const query =
         "SELECT COUNT(npat_id) AS count FROM np_appointment_table WHERE  int_delete_flag = 0 AND date_of_appointment BETWEEN ? AND ?;";
       db.query(query, dates, (err, results) => {
-        if (err) throw err;
+        if (err) {
+          reject(err.message);
+          return;
+        }
         const count = results[0]["count"];
         if (count >= 15) {
           reject(false);
@@ -319,11 +303,16 @@ class Appointment {
         appointment.date_of_appointment.getHours() ===
           this.date_of_appointment.getHours()
       ) {
-        return {
-          message:
-            "The date and time of appointment you have chosen is already busy",
-          success: false,
-        };
+        if (
+          appointment.date_of_appointment.getMinutes() ===
+          this.date_of_appointment.getMinutes()
+        ) {
+          return {
+            message:
+              "The date and time of appointment you have chosen is already busy",
+            success: false,
+          };
+        }
       }
     }
     return { success: true };
@@ -359,13 +348,6 @@ class Appointment {
       }
       if (await this.checkHolidays()) {
         reject("The day you're trying to set an appointment on is a holiday");
-        return;
-      }
-      try {
-        this.checkAvailableSlots(this.date_of_appointment.toDateString());
-        console.log("date checked out ");
-      } catch (error) {
-        reject(error);
         return;
       }
       const query =
