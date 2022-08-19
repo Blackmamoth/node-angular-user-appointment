@@ -19,11 +19,6 @@ const getAppointment_xhr = asyncHandler(async (req, res) => {
 
 const setAppointment_xhr = asyncHandler(async (req, res) => {
   const {
-    country_code,
-    mobile_num,
-    alternate_mobile_num,
-    name,
-    email,
     client_type,
     appointment_for,
     package_name,
@@ -31,12 +26,6 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
   } = req.body;
 
   if (
-    !country_code ||
-    !mobile_num ||
-    !alternate_mobile_num ||
-    !alternate_mobile_num ||
-    !name ||
-    !email ||
     !client_type ||
     !appointment_for ||
     !package_name ||
@@ -64,11 +53,6 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
   const user = await User.findUserByEmail(email);
 
   const appointment = new Appointment(
-    country_code,
-    mobile_num,
-    alternate_mobile_num,
-    name,
-    email,
     client_type,
     appointment_for,
     package_name,

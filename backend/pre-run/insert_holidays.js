@@ -32,6 +32,6 @@ const insertHolidays = () => {
   });
 };
 
-// connectDB();
+connectDB();
 
-// insertHolidays();
+insertHolidays();

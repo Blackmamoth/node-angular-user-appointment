@@ -1,23 +1,7 @@
 const { db } = require("../config/db");
 
 class Appointment {
-  constructor(
-    country_code,
-    mobile_num,
-    alternate_mobile_num,
-    name,
-    email,
-    client_type,
-    appointment_for,
-    package_name,
-    date_of_appointment,
-    user_id
-  ) {
-    this.country_code = country_code;
-    this.mobile_num = mobile_num;
-    this.alternate_mobile_num = alternate_mobile_num;
-    this.name = name;
-    this.email = email;
+  constructor(client_type, appointment_for, package_name, date_of_appointment, user_id) {
     this.client_type = client_type;
     this.appointment_for = appointment_for;
     this.package_name = package_name;
@@ -26,19 +10,7 @@ class Appointment {
   }
 
   get values() {
-    return [
-      this.country_code,
-      this.mobile_num,
-      this.alternate_mobile_num,
-      this.name,
-      this.email,
-      this.client_type,
-      this.appointment_for,
-      this.package_name,
-      this.date_of_appointment,
-      this.user_id,
-      this.user_id,
-    ];
+    return [this.client_type, this.appointment_for, this.package_name, this.date_of_appointment, this.user_id, this.user_id];
   }
 
   checkIfMobileNumsEqual() {
@@ -202,21 +174,6 @@ class Appointment {
         reject("Appointment not found");
         return;
       }
-      const country_code = appointment_data.country_code
-        ? appointment_data.country_code
-        : appointment.country_code;
-      const mobile_num = appointment_data.mobile_num
-        ? appointment_data.mobile_num
-        : appointment.mobile_num;
-      const alternate_mobile_num = appointment_data.alternate_mobile_num
-        ? appointment_data.alternate_mobile_num
-        : appointment.alternate_mobile_num;
-      const name = appointment_data.name
-        ? appointment_data.name
-        : appointment.name;
-      const email = appointment_data.email
-        ? appointment_data.email
-        : appointment.email;
       const client_type = appointment_data.client_type
         ? appointment_data.client_type
         : appointment.client_type;
@@ -230,11 +187,6 @@ class Appointment {
         ? appointment_data.date_of_appointment
         : appointment.date_of_appointment;
       const data = [
-        country_code,
-        mobile_num,
-        alternate_mobile_num,
-        name,
-        email,
         client_type,
         appointment_for,
         package_name,
@@ -242,7 +194,7 @@ class Appointment {
         id,
       ];
       const query =
-        "UPDATE `np_appointment_table` SET `country_code` = ?, `mobile_num` = ?, `alternate_mobile_num` = ?, `name` = ?, `email` = ?, `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
+        "UPDATE `np_appointment_table` SET `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
       db.query(query, data, (err, result) => {
         if (err) {
           reject(err.message);
@@ -299,9 +251,9 @@ class Appointment {
     for (let appointment of appointments) {
       if (
         appointment.date_of_appointment.getDate() ===
-          this.date_of_appointment.getDate() &&
+        this.date_of_appointment.getDate() &&
         appointment.date_of_appointment.getHours() ===
-          this.date_of_appointment.getHours()
+        this.date_of_appointment.getHours()
       ) {
         if (
           appointment.date_of_appointment.getMinutes() ===
@@ -319,22 +271,7 @@ class Appointment {
   }
 
   setAppointment() {
-    console.log(this.date_of_appointment);
     return new Promise(async (resolve, reject) => {
-      if (this.checkIfMobileNumsEqual()) {
-        reject("Mobile number and alternate mobile number should be different");
-        return;
-      }
-      if (!this.validateMobileNumAndAlternateNum()) {
-        reject(
-          "Mobile number and alternate mobile number must contain 10 digits only"
-        );
-        return;
-      }
-      if (!this.validateEmail()) {
-        reject("Please provide a valid email address");
-        return;
-      }
       const validDate = await this.checkBusyDates();
       if (validDate.success === false) {
         reject(validDate.message);
@@ -351,7 +288,7 @@ class Appointment {
         return;
       }
       const query =
-        "INSERT INTO np_appointment_table (`country_code`, `mobile_num`, `alternate_mobile_num`, `name`, `email`, `client_type`, `appointment_for`, `package`, `date_of_appointment`, `user_id`, `added_user_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        "INSERT INTO np_appointment_table (`client_type`, `appointment_for`, `package`, `date_of_appointment`, `client_id`) VALUES (?, ?, ?, ?, ?);";
       db.query(query, this.values, (err, results) => {
         if (err) {
           reject({ error: err.message, success: false });
