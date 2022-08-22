@@ -13,13 +13,6 @@ class Appointment {
     return [this.client_type, this.appointment_for, this.package_name, this.date_of_appointment, this.user_id, this.user_id];
   }
 
-  checkIfMobileNumsEqual() {
-    if (this.mobile_num === this.alternate_mobile_num) {
-      return true;
-    }
-    return false;
-  }
-
   checkSlots() {
     return new Promise((resolve, reject) => {
       const dayAfter = new Date(this.date_of_appointment);

@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // app.use("/api/appointments", require("./routes/appointmentRoutes"));
 // app.use("/api/countryCodes", require("./routes/countryCodeRoutes"));
-app.use("/api/users", require('./routes/clientRoutes'))
+app.use("/api/clients", require('./routes/clientRoutes'))
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));

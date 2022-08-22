@@ -67,22 +67,7 @@ UPDATE `np_appointment_table` SET `int_delete_flag` = 1 WHERE npat_id = ?;
 
 SELECT COUNT(npat_id) AS 'total_appointment_count', COUNT( CASE WHEN appointment_for = 'Re Registration' THEN npat_id END ) AS count_re_registration, COUNT( CASE WHEN appointment_for = 'Diet Change' THEN npat_id END ) AS count_diet_change, COUNT( CASE WHEN appointment_for = 'New Registration' THEN npat_id END ) AS count_new_registration, DATE(date_of_appointment) as 'date_of_appointment' FROM np_appointment_table WHERE int_delete_flag = 0 GROUP BY DATE(date_of_appointment);
 
--- ?User table
-
--- CREATE TABLE np_user_table (
---     nput_id BIGINT NOT NULL AUTO_INCREMENT,
---     name LONGTEXT NOT NULL,
---     email LONGTEXT NOT NULL,
---     mobile_num LONGTEXT NOT NULL,
---     alternate_mobile_num LONGTEXT NOT NULL,
---     package LONGTEXT NOT NULL,
---     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
---     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     int_delete_flag TINYINT DEFAULT 0,
---     PRIMARY KEY (nput_id)
--- );
-
--- ?Add client to and existing meeting
+-- ?Add client to an existing meeting
 
 -- UPDATE `np_appointment_table` SET  `added_user_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;
 
@@ -127,7 +112,7 @@ CREATE TABLE np_client_table (
     PRIMARY KEY (npct_id)
 );
 
--- ?ADD CLIENT
+-- ?ADD CLIENT DATA
 
 INSERT INTO np_client_table (name, gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
@@ -140,6 +125,26 @@ SELECT npct_id AS id, name,gender, email, dob, mobile_num, country_name, state_n
 
 -- ?GET CLIENT WITH THE SPECIFIED PHONE NUMBER
 SELECT npct_id AS id, name,gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and mobile_num = ?;
+
+-- ?GET CLIENT WITH  THE SPEICIFIED EMAIL ADDRESS
+SELECT npct_id AS id, name,gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and email = ?;
+
+-- ?GET CLIENT WITH THE SPECIFIED NAME TO CHECK IF A CLIENT WITH SAME NAME ALREADY EXISTS (WHILE ADDING CLIENT DATA)
+SELECT name FROM np_client_table WHERE name = ?;
+
+-- ?COMPARE CLIENT'S email TO CHECK IF CLIENT'S email ALREADY EXISTS IN TABLE AND NOT TO SELECT CURRENTLY PROVIDED email (WHILE UPDATING CLIENT DATA)
+SELECT email FROM np_client_table WHERE email = ? AND npct_id != ?;
+-- ?WE PROVIDE THE SECOND ARGUMENT AS CURRENTLY PROVIDED email, JUST IN CASE THE QUERY RETURNS THE CURRENT CLIENT AS RESULT
+
+-- ?COMPARE CLIENT'S phone TO CHECK IF CLIENT'S phone ALREADY EXISTS IN TABLE AND NOT TO SELECT CURRENTLY PROVIDED phone (WHILE UPDATING CLIENT DATA)
+SELECT phone FROM np_client_table WHERE phone = ? AND npct_id != ?;
+-- ?WE PROVIDE THE SECOND ARGUMENT AS CURRENTLY PROVIDED phone, JUST IN CASE THE QUERY RETURNS THE CURRENT CLIENT AS RESULT
+
+--?UPDATE CLIENT DATA
+UPDATE np_client_table SET name = ?, gender = ?, email = ?, dob = ?, mobile_num = ?, country_name = ?, state_name = ?, city_name = ?, address_home = ?, address_office = ?, telephone_home = ?, telephone_office = ?, martial_status = ?, about_client = ? WHERE int_delete_flag = 0 and id = ?;
+
+--?DELETE CLIENT RECORD (JUST SET THE int_delete_flag to 1 TO DENOT THAT ROW AS DELETED)
+UPDATE np_client_table SET int_delete_flag = 1 WHERE npct_id = ?;
 
 -- ?TABLE TO STORE CLIENT'S HEALTH RELATED DATA
 
@@ -167,10 +172,37 @@ CREATE TABLE np_client_health_table (
     FOREIGN KEY (client_id) REFERENCES np_client_table(npct_id)
 );
 
+--?INSERT CLIENT'S HELATH DATA
+INSERT INTO np_client_health_table (enrollment_purpose, diet, occupation, travel_often, out_side_meals, peak_hunger_time, acidity, gas, constipation, hair_fall, acne,weakness ,insomnia, any_other, client_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+--?UPDATE CLIENT'S HEALTH DATA
+UPDATE np_client_health_table SET enrollment_purpose = ?, diet = ?, occupation =? , travel_often = ?, out_side_meals = ?, peak_hunger_time = ?, acidity = ?, gas = ?, constipation = ?, hair_fall = ?, acne = ?, weakness = ?, insomnia = ?, any_other = ? WHERE int_delete_flag = 0 AND npcht_id = ?;
+
+--?GET ALL CLIENTS HEALTH DATA
+SELECT npcht_id, enrollment_purpose, diet, occupation, travel_often, out_side_meals, peak_hunger_time, acidity, gas, constipation, hair_fall, acne,weakness ,insomnia, any_other, client_id FROM np_client_health_table WHERE int_delete_flag = 0;
+
+--? GET CLIENT DATA WITH ID
+SELECT npcht_id, enrollment_purpose, diet, occupation, travel_often, out_side_meals, peak_hunger_time, acidity, gas, constipation, hair_fall, acne,weakness ,insomnia, any_other, client_id FROM np_client_health_table WHERE int_delete_flag = 0 AND npcht_id = ?;
+
+--?JOIN DATA OF CLIENT TABLE AND CLIENT HEALTH TABLE FOR A SPECIFIC CLIENT
+SELECT np_client_table.name, np_client_health_table.enrollment_purpose, np_client_health_table.diet, np_client_health_table.occupation,
+np_client_health_table.travel_often, np_client_health_table.out_side_meals, np_client_health_table.peak_hunger_time, np_client_health_table.acidity,
+np_client_health_table.gas, np_client_health_table.constipation, np_client_health_table.hair_fall, np_client_health_table.acne, np_client_health_table.weakness,
+np_client_health_table.insomnia, np_client_health_table.any_other FROM np_client_table INNER JOIN np_client_health_table ON np_client_table.npct_id = np_client_health_table.client_id AND np_client_table.npct_id = ?;
+
+--?JOIN DATA OF CLIENT TABLE AND CLIENT HEALTH TABLE FOR ALL CLIENTS
+SELECT np_client_table.name, np_client_health_table.enrollment_purpose, np_client_health_table.diet, np_client_health_table.occupation,
+np_client_health_table.travel_often, np_client_health_table.out_side_meals, np_client_health_table.peak_hunger_time, np_client_health_table.acidity,
+np_client_health_table.gas, np_client_health_table.constipation, np_client_health_table.hair_fall, np_client_health_table.acne, np_client_health_table.weakness,
+np_client_health_table.insomnia, np_client_health_table.any_other FROM np_client_table INNER JOIN np_client_health_table ON np_client_table.npct_id = np_client_health_table.client_id;
+
+--?DELETE CLIENT HEALTH DATA
+UPDATE np_client_health_table SET int_delete_flag = 1 WHERE client_id = ?;
+
 -- ?TABLE TO HOLD CLIENT'S VITAMIN CONSUMPTION
 
 CREATE TABLE np_client_vitamins (
-    npcv_id BIGINT NOT NULL AUTO_INCREMENT,
+    npcv_id BIGINT NOT NULL AUTO_INCREMENT, 
     vitamin_name LONGTEXT NOT NULL,
     vitamin_dosage LONGTEXT NOT NULL,
     vitamin_timing LONGTEXT NOT NULL,
@@ -181,6 +213,15 @@ CREATE TABLE np_client_vitamins (
     PRIMARY KEY (npcv_id),
     FOREIGN KEY (client_id) REFERENCES np_client_table(npct_id)
 );
+
+--?INSERT CLIENT'S VITAMIN DATA
+INSERT INTO np_client_vitamins (vitamin_name, vitamin_dosage, vitamin_timing, client_id) VALUES (?, ?, ?, ?);
+
+--?DELETE ALL THE VITAMINS RELATED TO A CLIENT
+UPDATE np_client_vitamins SET int_delete_flag = 1 WHERE client_id = ?;
+
+--?JOIN CLIENT TABLE AND CLIENT VITAMINS TABLE
+SELECT np_client_table.name, np_client_vitamins.vitamin_name, np_client_vitamins.vitamin_dosage, np_client_vitamins.vitamin_timing FROM np_client_table INNER JOIN np_client_vitamins ON np_client_table.npct_id = client_id = client_id = ?;
 
 -- ?TABLE TO HOLD MEDICAL HISTORY OF CLIENT'S FAMILY
 
@@ -199,17 +240,30 @@ CREATE TABLE np_client_family_med_history (
     FOREIGN KEY (client_id) REFERENCES np_client_table(npct_id)
 );
 
+--? INSERT CLIENT'S FAMILY MEDICAL HISTORY
+INSERT INTO np_client_family_med_history (mother, father, brother, sister, grandparent, client_id) VALUES (?, ?, ?, ?, ?, ?);
+
+--?GET CLIENT FAMILT MEDICAL HISTORY
+SELECT mother, father, brother, sister, grandparent FROM np_client_family_med_history WHERE int_delete_flag = 0 AND client_id = ?;
+
+--?JOIN CLIENT TABLE AND CLIENT FAMILY MEDICAL HISTORY
+SELECT np_client_table.name, np_client_family_med_history.mother, np_client_family_med_history.father, np_client_family_med_history.brother,
+np_client_family_med_history.sister, np_client_family_med_history.grandparent FROM np_client_table INNER JOIN np_client_family_med_history WHERE npct_id = client_id AND client_id = ?;
+
+--?DELETE CLIENT'S FAMILT MEDICAL HISTORY
+UPDATE np_client_family_med_history SET int_delete_flag = 0 WHERE client_id = ?;
+
 -- ?TABLE TO HOLD AVG EATING PATTERN OF CLIENT
 
 CREATE TABLE np_avg_eating_pattern (
     npaep_id BIGINT NOT NULL AUTO_INCREMENT,
-    breakfast JSON NOT NULL,
+    breakfast ENUM("HOME", "OFFICE", "PACKED_TIFFIN", "RESTAURANT") NOT NULL,
     breakfast_detail LONGTEXT NOT NULL,
-    lunch JSON NOT NULL,
+    lunch ENUM("HOME", "OFFICE", "PACKED_TIFFIN", "RESTAURANT") NOT NULL,
     lunch_detail LONGTEXT NOT NULL,
-    snacks JSON NOT NULL,
+    snacks ENUM("HOME", "OFFICE", "PACKED_TIFFIN", "RESTAURANT") NOT NULL,
     snacks_detail LONGTEXT NOT NULL,
-    dinner JSON NOT NULL,
+    dinner ENUM("HOME", "OFFICE", "PACKED_TIFFIN", "RESTAURANT") NOT NULL,
     dinner_detail LONGTEXT NOT NULL,
     client_id BIGINT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -218,3 +272,11 @@ CREATE TABLE np_avg_eating_pattern (
     PRIMARY KEY (npaep_id),
     FOREIGN KEY (client_id) REFERENCES np_client_table(npct_id)
 );
+
+-- ?INSERT CLIENT'S AVG EATING PATTERN TO TABLE
+INSERT INTO np_avg_eating_pattern (breakfast, lunch, snacks, dinner, client_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+--?GET CLIENT'S AVG EATING PATTERN FROM TABLE
+SELECT np_client_table.npct_id, np_avg_eating_pattern.breakfast, np_avg_eating_pattern.breakfast_detail, np_avg_eating_pattern.lunch,
+np_avg_eating_pattern.lunch_detail, np_avg_eating_pattern.snacks, np_avg_eating_pattern.snacks_detail, np_avg_eating_pattern.dinner,
+np_avg_eating_pattern.dinner_detail FROM np_client_table INNER JOIN np_avg_eating_pattern ON np_client_table.npct_id = client_id AND client_id = ?;
