@@ -1,16 +1,16 @@
 const { db } = require("../config/db");
 
 class Appointment {
-  constructor(client_type, appointment_for, package_name, date_of_appointment, user_id) {
+  constructor(client_type, appointment_for, package_name, date_of_appointment, client_id) {
     this.client_type = client_type;
     this.appointment_for = appointment_for;
     this.package_name = package_name;
     this.date_of_appointment = new Date(date_of_appointment);
-    this.user_id = user_id;
+    this.client_id = client_id;
   }
 
   get values() {
-    return [this.client_type, this.appointment_for, this.package_name, this.date_of_appointment, this.user_id, this.user_id];
+    return Object.values(this);
   }
 
   checkSlots() {
@@ -68,7 +68,8 @@ class Appointment {
   static getAppointmentsBetweenDates(date1, date2) {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT * FROM `np_appointment_table` WHERE int_delete_flag = 0 AND DATE(date_of_appointment) BETWEEN ? AND ?;";
+        `SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND DATE(date_of_appointment) BETWEEN ? AND ?;`;
       const dates = [date1, date2];
       db.query(query, dates, (err, results) => {
         if (err) {
@@ -81,7 +82,7 @@ class Appointment {
   }
 
   validateMobileNumAndAlternateNum() {
-    const pattern = /\d{10}/; // pattern to check if the mobile num and alternate mobile num have 10 digits
+    const pattern = /^\d{10}$/; // pattern to check if the mobile num and alternate mobile num have 10 digits
     if (
       pattern.test(this.mobile_num) &&
       pattern.test(this.alternate_mobile_num)
@@ -114,7 +115,8 @@ class Appointment {
   static getAppointments() {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT * FROM np_appointment_table WHERE int_delete_flag = 0 ORDER BY date_of_appointment;";
+        `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 ORDER BY date_of_appointment;`;
       db.query(query, (err, results) => {
         if (err) reject(err.message);
         resolve(results);
@@ -125,7 +127,8 @@ class Appointment {
   static getAppointment(id) {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT * FROM np_appointment_table WHERE npat_id = ? AND int_delete_flag = 0;";
+        `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 AND npat_id = ? ORDER BY date_of_appointment;`;
       db.query(query, [id], (err, results) => {
         if (err) reject(err.message);
         if (results.length > 0) {
@@ -170,9 +173,9 @@ class Appointment {
       const client_type = appointment_data.client_type
         ? appointment_data.client_type
         : appointment.client_type;
-      const appointment_for = appointment_data.client_type
-        ? appointment_data.client_type
-        : appointment.client_type;
+      const appointment_for = appointment_data.appointment_for
+        ? appointment_data.appointment_for
+        : appointment.appointment_for;
       const package_name = appointment_data.package_name
         ? appointment_data.package_name
         : appointment.package;
@@ -190,7 +193,8 @@ class Appointment {
         "UPDATE `np_appointment_table` SET `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
       db.query(query, data, (err, result) => {
         if (err) {
-          reject(err.message);
+          console.log(err)
+          reject("An error occured while updating appointment data");
           return;
         }
         resolve({ message: "Appointment updated successfully", success: true });
@@ -281,7 +285,7 @@ class Appointment {
         return;
       }
       const query =
-        "INSERT INTO np_appointment_table (`client_type`, `appointment_for`, `package`, `date_of_appointment`, `client_id`) VALUES (?, ?, ?, ?, ?);";
+        `INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of_appointment, client_id) VALUES (?, ?, ?, ?, ?);`
       db.query(query, this.values, (err, results) => {
         if (err) {
           reject({ error: err.message, success: false });

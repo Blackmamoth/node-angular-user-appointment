@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Appointment = require("../models/appointmentModel");
-const User = require("../models/userModel");
+const Client = require('../models/clientModel')
 
 const getAppointments_xhr = asyncHandler(async (req, res) => {
   const appointments = await Appointment.getAppointments();
@@ -23,42 +23,22 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     appointment_for,
     package_name,
     date_of_appointment,
+    client_id
   } = req.body;
 
   if (
     !client_type ||
     !appointment_for ||
     !package_name ||
-    !date_of_appointment
+    !date_of_appointment ||
+    !client_id
   ) {
     res.status(400).json({ error: true, message: "All fields are required" });
     throw new Error("All fields are required");
   }
 
-  const userByName = await User.findUserByName(name);
-  const userByEmail = await User.findUserByEmail(email);
-  const userByPhone = await User.findUserByPhone(mobile_num);
 
-  if (!userByEmail && !userByName && !userByPhone) {
-    const newUser = new User(
-      name,
-      email,
-      mobile_num,
-      alternate_mobile_num,
-      package_name
-    );
-    await newUser.addUser();
-  }
-
-  const user = await User.findUserByEmail(email);
-
-  const appointment = new Appointment(
-    client_type,
-    appointment_for,
-    package_name,
-    date_of_appointment,
-    user.nput_id
-  );
+  const appointment = new Appointment(client_type, appointment_for, package_name, date_of_appointment, client_id);
   try {
     const appoint = await appointment.setAppointment();
     res.status(201).json({ success: true, message: appoint });
@@ -69,11 +49,16 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
 
 const updateAppointment_xhr = asyncHandler(async (req, res) => {
   const appointment_data = req.body;
-  const updatedAppointment = await Appointment.updateAppointment(
-    req.params.id,
-    appointment_data
-  );
-  res.json(updatedAppointment);
+  try {
+    const updatedAppointment = await Appointment.updateAppointment(
+      req.params.id,
+      appointment_data
+    );
+    res.status(200).json(updatedAppointment);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error)
+  }
 });
 
 const registrationCount_xhr = asyncHandler(async (req, res) => {
@@ -107,41 +92,6 @@ const deleteAppointment_xhr = asyncHandler(async (req, res) => {
   }
 });
 
-const addClientToAppointment_xhr = asyncHandler(async (req, res) => {
-  const {
-    mobile_num,
-    alternate_mobile_num,
-    name,
-    email,
-    package_name,
-    appointmentID,
-  } = req.body;
-  const user = await User.findUserByPhone(mobile_num);
-  if (user) {
-    const addClient = await Appointment.addClient(user.nput_id, appointmentID);
-    if (!addClient) {
-      res.json({ success: false, message: addClient });
-    } else {
-      res.json({ success: true, message: addClient });
-    }
-    console.log(addClient);
-  } else {
-    const newUser = new User(
-      name,
-      email,
-      mobile_num,
-      alternate_mobile_num,
-      package_name
-    );
-    await newUser.addUser();
-    const addClient = await Appointment.addClient(user.nput_id, appointmentID);
-    if (!addClient) {
-      res.json({ success: false, message: addClient });
-    } else {
-      res.json({ success: true, message: addClient });
-    }
-  }
-});
 
 const getUser = asyncHandler(async (req, res) => {
   const mobile_num = req.body.mobile_num;
@@ -151,7 +101,7 @@ const getUser = asyncHandler(async (req, res) => {
       message: "Please provide a mobile number to search user by",
     });
   }
-  const user = await User.findUserByPhone(mobile_num);
+  const user = await Client.getClientByPhone(mobile_num);
   if (!user) {
     return res.status(400).json({ message: "User not found" });
   }
@@ -175,7 +125,6 @@ module.exports = {
   getAppointmentsBetweenDates_xhr,
   updateAppointment_xhr,
   deleteAppointment_xhr,
-  addClientToAppointment_xhr,
   getUser,
   getHolidays_xhr,
 };

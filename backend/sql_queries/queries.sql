@@ -4,27 +4,6 @@ CREATE DATABASE appointment_db;
 
 -- ?APPOINTMENT TABLE CREATION QUERY
 
--- CREATE TABLE np_appointment_table (
---     npat_id BIGINT NOT NULL AUTO_INCREMENT,
---     country_code LONGTEXT NOT NULL,
---     mobile_num LONGTEXT NOT NULL,
---     alternate_mobile_num LONGTEXT NOT NULL,  
---     name LONGTEXT NOT NULL,
---     email LONGTEXT NOT NULL,
---     client_type LONGTEXT NOT NULL,
---     appointment_for LONGTEXT NOT NULL,
---     package LONGTEXT NOT NULL,
---     date_of_appointment DATETIME NOT NULL UNIQUE,
---     user_id BIGINT NOT NULL,
---     added_user_id BIGINT NOT NULL DEFAULT 0,
---     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
---     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     int_delete_flag TINYINT DEFAULT 0,
---     PRIMARY KEY (npat_id),
---     FOREIGN KEY (user_id) REFERENCES np_user_table(nput_id),
---     FOREIGN KEY (added_user_id) REFERENCES np_user_table(nput_id)
--- );
-
 CREATE TABLE np_appointment_table (
     npat_id BIGINT NOT NULL AUTO_INCREMENT,
     client_type LONGTEXT NOT NULL,
@@ -38,6 +17,17 @@ CREATE TABLE np_appointment_table (
     PRIMARY KEY (npat_id),
     FOREIGN KEY(client_id) REFERENCES np_client_table(npct_id)
 );
+
+--?ADD DATA TO APPOINTMENT TABLE
+
+INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of_appointment, client_id) VALUES (?, ?, ?, ?, ?);
+
+--?SELECT DATA FROM APPOINTMENT TABLE
+
+SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND client_id = ?;
+
+--?GET ALL APPOINTMENTS BETWEEN SPECIFIC DATE
 
 -- ?Get All appointments
 
