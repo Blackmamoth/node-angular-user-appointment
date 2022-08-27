@@ -58,7 +58,6 @@ class Appointment {
       .replace("/", "-");
     for (let i = 0; i < holidays.length; i++) {
       if (holidays[i].date === date) {
-        console.log(holidays[i].date);
         return true;
       }
     }
@@ -116,7 +115,7 @@ class Appointment {
     return new Promise((resolve, reject) => {
       const query =
         `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
-        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 ORDER BY date_of_appointment;`;
+        np_appointment_table.appointment_for, np_appointment_table.added_client_id,np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 ORDER BY date_of_appointment;`;
       db.query(query, (err, results) => {
         if (err) reject(err.message);
         resolve(results);
@@ -127,11 +126,11 @@ class Appointment {
   static getAppointment(id) {
     return new Promise((resolve, reject) => {
       const query =
-        `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
-        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 AND npat_id = ? ORDER BY date_of_appointment;`;
+        `SELECT np_appointment_table.npat_id, np_client_table.alternate_mobile_num ,np_client_table.name, np_client_table.country_code ,np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 AND npat_id = ?;`;
       db.query(query, [id], (err, results) => {
         if (err) reject(err.message);
-        if (results.length > 0) {
+        if (results.length) {
           resolve(results[0]);
         } else {
           reject("Appointment not found");
@@ -193,7 +192,6 @@ class Appointment {
         "UPDATE `np_appointment_table` SET `client_type` = ?, `appointment_for` = ?, `package` = ?, `date_of_appointment` = ? WHERE int_delete_flag = 0 AND npat_id = ?;";
       db.query(query, data, (err, result) => {
         if (err) {
-          console.log(err)
           reject("An error occured while updating appointment data");
           return;
         }
@@ -205,12 +203,14 @@ class Appointment {
   static addClient(user_id, appointment_id) {
     return new Promise((resolve, reject) => {
       const query =
-        "UPDATE `np_appointment_table` SET  `added_user_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;";
+        "UPDATE `np_appointment_table` SET  `added_client_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;";
       db.query(query, [user_id, appointment_id], (err, result) => {
         if (err) {
+          console.log(err);
           reject("Error while adding client to appointment");
           return;
         }
+        console.log(result);
         resolve("Client successfully added to the appointment");
       });
     });

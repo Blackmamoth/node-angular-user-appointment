@@ -44,7 +44,6 @@ class ClientHealth {
                     reject({ error: true, message: "An error occured while retreiving client's health details" })
                     return;
                 }
-                console.log(result)
                 if (result.length) {
                     resolve(result[0]);
                 } else {

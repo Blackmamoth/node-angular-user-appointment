@@ -3,20 +3,22 @@ const { db } = require("../config/db");
 
 class Client {
 
-  constructor(name, gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, martial_status, telephone_home, telephone_office, about_client) {
+  constructor(name, gender, email, dob, mobile_num, alternate_mobile_num, country_code, country_name, state_name, city_name, address_home, address_office, martial_status, telephone_home, telephone_office, about_client) {
     this.name = name;
     this.gender = gender;
     this.email = email;
     this.dob = new Date(dob);
     this.mobile_num = mobile_num;
+    this.alternate_mobile_num = alternate_mobile_num;
+    this.country_code = country_code;
     this.country_name = country_name;
     this.state_name = state_name;
     this.city_name = city_name;
     this.address_home = address_home;
     this.address_office = address_office;
-    this.martial_status = martial_status;
     this.telephone_home = telephone_home;
     this.telephone_office = telephone_office;
+    this.martial_status = martial_status;
     this.about_client = about_client;
   }
 
@@ -70,11 +72,12 @@ class Client {
     if (!pattern.test(this.mobile_num)) {
       return { error: true, message: "Please provide a valid phone number with exactly 10 digits only" };
     }
-    const phone = await Client.getClientByPhone(this.mobile_num);
-    if (phone) {
+    try {
+      const phone = await Client.getClientByPhone(this.mobile_num);
       return { error: true, message: "The provided phone number is already registered to an existing client" }
+    } catch (err) {
+      return true;
     }
-    return true;
   }
 
   async validateEmail() {
@@ -82,16 +85,17 @@ class Client {
     if (!pattern.test(this.email)) {
       return { error: true, message: "Please provide a valid email" };
     }
-    const email = await Client.getClientByEmail(this.email);
-    if (!email) {
+    try {
+      const email = await Client.getClientByEmail(this.email);
       return { error: true, message: "The provided email is already registered to an existing client" }
+    } catch (err) {
+      return true;
     }
-    return true;
   }
 
   addClient() {
     return new Promise(async (resolve, reject) => {
-      const query = "INSERT INTO np_client_table (name, gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const query = "INSERT INTO np_client_table (name, gender, email, dob, mobile_num, alternate_mobile_num, country_code ,country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const email = await this.validateEmail();
       if (email.error) {
         reject(email);
@@ -108,7 +112,7 @@ class Client {
           return;
         }
         if (result.affectedRows === 1) {
-          resolve({ success: false, message: "Client enrolled successfully" });
+          resolve({ success: false, message: "Client enrolled successfully", client_id: result.insertId });
           return;
         }
         reject({ success: false, message: "An error occured while enrolling client" });
@@ -135,6 +139,10 @@ class Client {
       data.push(dob);
       const mobile_num = clientData.mobile_num || client.mobile_num;
       data.push(mobile_num);
+      const alternate_mobile_num = clientData.alternate_mobile_num || client.alternate_mobile_num;
+      data.push(alternate_mobile_num);
+      const country_code = clientData.country_code || client.country_code;
+      data.push(country_code)
       const country_name = clientData.country_name || client.country_name;
       data.push(country_name);
       const state_name = clientData.state_name || client.state_name;
@@ -166,7 +174,7 @@ class Client {
         reject(err);
         return;
       }
-      const query = "UPDATE np_client_table SET name = ?, gender = ?, email = ?, dob = ?, mobile_num = ?, country_name = ?, state_name = ?, city_name = ?, address_home = ?, address_office = ?, telephone_home = ?, telephone_office = ?, martial_status = ?, about_client = ? WHERE int_delete_flag = 0 and npct_id = ?;";
+      const query = "UPDATE np_client_table SET name = ?, gender = ?, email = ?, dob = ?, mobile_num = ?, alternate_mobile_num = ?, country_code = ? ,country_name = ?, state_name = ?, city_name = ?, address_home = ?, address_office = ?, telephone_home = ?, telephone_office = ?, martial_status = ?, about_client = ? WHERE int_delete_flag = 0 and npct_id = ?;";
       db.query(query, data, (err, result) => {
         if (err) {
           reject({ error: true, message: "An error occured while updating client data" });
@@ -214,7 +222,7 @@ class Client {
 
   static getClientByPhone(phone) {
     return new Promise((resolve, reject) => {
-      const query = "SELECT npct_id AS id, name,gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and mobile_num = ?;"
+      const query = "SELECT npct_id AS id, name,gender, email, dob, mobile_num, alternate_mobile_num ,country_code ,country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and mobile_num = ?;"
       db.query(query, [phone], (err, result) => {
         if (err) {
           reject({ error: true, message: "An error occured while retreiving client data" });
@@ -231,8 +239,8 @@ class Client {
 
   static getClientByEmail(email) {
     return new Promise((resolve, reject) => {
-      const query = "SELECT npct_id AS id, name,gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and email = ?;"
-      db.query(query, [phone], (err, result) => {
+      const query = "SELECT npct_id AS id, name,gender, email, dob, mobile_num, alternate_mobile_num, country_code, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client FROM np_client_table WHERE int_delete_flag = 0 and email = ?;"
+      db.query(query, [email], (err, result) => {
         if (err) {
           reject({ error: true, message: "An error occured while retreiving client data" });
           return;

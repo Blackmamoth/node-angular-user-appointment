@@ -2,12 +2,13 @@ const e = require('express');
 const { db } = require('../config/db');
 
 class ClientFamilyMed {
-    constructor(mother, father, brother, sister, grandparents, client_id) {
-        this.mother = JSON.stringify(mother);
-        this.father = JSON.stringify(father);
-        this.brother = JSON.stringify(brother);
-        this.sister = JSON.stringify(sister);
-        this.grandparents = JSON.stringify(grandparents);
+    constructor(diabetes, hypertension, heart_disease, hypothyroid, cancer, overweight, client_id) {
+        this.diabetes = JSON.stringify(diabetes);
+        this.hypertension = JSON.stringify(hypertension);
+        this.heart_disease = JSON.stringify(heart_disease);
+        this.hypothyroid = JSON.stringify(hypothyroid);
+        this.cancer = JSON.stringify(cancer);
+        this.overweight = JSON.stringify(overweight)
         this.client_id = client_id;
     }
 
@@ -17,7 +18,7 @@ class ClientFamilyMed {
 
     addMedData() {
         return new Promise((resolve, reject) => {
-            const query = "INSERT INTO np_client_family_med_history (mother, father, brother, sister, grandparent, client_id) VALUES (?, ?, ?, ?, ?, ?);";
+            const query = "INSERT INTO np_client_family_med_history (diabetes, hypertension, heart_disease, hypothyroid, cancer, overweight,client_id) VALUES (?, ?, ?, ?, ?, ?, ?);";
             db.query(query, this.data, (err, result) => {
                 if (err) {
                     reject({ error: true, message: "An error occured while inserting client's family medical history" });
@@ -30,8 +31,8 @@ class ClientFamilyMed {
 
     static getClientFamilyMedData(client_id) {
         return new Promise((resolve, reject) => {
-            const query = `SELECT np_client_table.name, np_client_family_med_history.mother, np_client_family_med_history.father, np_client_family_med_history.brother,
-            np_client_family_med_history.sister, np_client_family_med_history.grandparent FROM np_client_table INNER JOIN np_client_family_med_history WHERE npct_id = client_id AND client_id = ?;`;
+            const query = `SELECT np_client_table.name, np_client_family_med_history.diabetes, np_client_family_med_history.hypertension, np_client_family_med_history.heart_disease,
+            np_client_family_med_history.hypothyroid, np_client_family_med_history.cancer, np_client_family_med_history.overweight FROM np_client_table INNER JOIN np_client_family_med_history WHERE npct_id = client_id AND client_id = ?`;
             db.query(query, [client_id], (err, result) => {
                 if (err) {
                     reject({ error: true, message: "An error occured while retreiving client's family medical history" });

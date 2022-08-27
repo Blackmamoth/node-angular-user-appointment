@@ -17,6 +17,7 @@ class ClientVitamins {
             const query = "INSERT INTO np_client_vitamins (vitamin_name, vitamin_dosage, vitamin_timing, client_id) VALUES (?, ?, ?, ?);";
             db.query(query, this.vitaminsData, (err, result) => {
                 if (err) {
+                    console.log(err);
                     reject({ error: true, message: "An error occured while inserting client's vitamin data" });
                     return;
                 }

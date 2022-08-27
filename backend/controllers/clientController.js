@@ -7,12 +7,12 @@ const asyncHandler = require("express-async-handler");
 
 
 const addClient_xhr = asyncHandler(async (req, res) => {
-    const { name, gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client } = req.body;
-    if (!name || !gender || !email || !dob, !mobile_num, !country_name, !state_name, !city_name, !address_home, !martial_status, !about_client) {
+    const { name, gender, email, dob, mobile_num, alternate_mobile_num, country_code, country_name, state_name, city_name, address_home, address_office, telephone_home, telephone_office, martial_status, about_client } = req.body;
+    if (!name || !gender || !email || !dob, !mobile_num, !alternate_mobile_num || !country_name || !country_code || !state_name, !city_name, !address_home, !martial_status, !about_client) {
         res.status(400).json({ incomplete: true, message: "Please provide all the mandatory details" })
         return;
     }
-    const client = new Client(name, gender, email, dob, mobile_num, country_name, state_name, city_name, address_home, address_office, martial_status, telephone_home, telephone_office, about_client);
+    const client = new Client(name, gender, email, dob, mobile_num, alternate_mobile_num, country_code, country_name, state_name, city_name, address_home, address_office, martial_status, telephone_home, telephone_office, about_client);
     try {
         const add = await client.addClient()
         res.status(201).json(add);
@@ -177,12 +177,12 @@ const deleteClientVitamins_xhr = asyncHandler(async (req, res) => {
 })
 
 const addClientFamilyMed_xhr = asyncHandler(async (req, res) => {
-    const { mother, father, brother, sister, grandparents } = req.body;
-    if (!mother || !father || !brother || !sister || !grandparents) {
+    const { diabetes, hypertension, hypothyroid, heart_disease, cancer, overweight } = req.body;
+    if (!diabetes || !hypertension || !hypothyroid || !heart_disease || !cancer || !overweight) {
         res.status(400).json({ message: "Please provide all fields" })
         return;
     }
-    const familyMed = new ClientFamilyMed(mother, father, brother, sister, grandparents, req.params.client_id);
+    const familyMed = new ClientFamilyMed(diabetes, hypertension, heart_disease, hypothyroid, cancer, overweight, req.params.client_id);
     try {
         const addMedData = await familyMed.addMedData();
         res.status(201).json({ success: true, data: addMedData });

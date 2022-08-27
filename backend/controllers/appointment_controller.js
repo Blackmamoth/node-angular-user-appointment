@@ -117,6 +117,22 @@ const getHolidays_xhr = asyncHandler(async (req, res) => {
   }
 });
 
+const addClientToAppointment = asyncHandler(async (req, res) => {
+  const { client_id, appointmentID } = req.body;
+  console.log(req.body)
+  if (!client_id) {
+    res.status(400);
+    throw new Error("User specified is not a registered user")
+  }
+  try {
+    const addClient = await Appointment.addClient(client_id, appointmentID);
+    res.status(200).json({ success: true, message: addClient })
+  } catch (err) {
+    res.status(400);
+    throw new Error(err);
+  }
+})
+
 module.exports = {
   getAppointments_xhr,
   getAppointment_xhr,
@@ -127,4 +143,5 @@ module.exports = {
   deleteAppointment_xhr,
   getUser,
   getHolidays_xhr,
+  addClientToAppointment
 };

@@ -23,7 +23,6 @@ class ClientEatingPattern {
             const query = "INSERT INTO np_avg_eating_pattern (breakfast, breakfast_detail, lunch, lunch_detail, snacks, snacks_detail, dinner, dinner_detail, client_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
             db.query(query, this.data, (err, result) => {
                 if (err) {
-                    console.log(err)
                     reject({ error: true, message: "An error occured while inserting client data" });
                     return;
                 }

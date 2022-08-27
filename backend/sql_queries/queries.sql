@@ -11,11 +11,13 @@ CREATE TABLE np_appointment_table (
     package LONGTEXT NOT NULL,
     date_of_appointment DATETIME NOT NULL,
     client_id BIGINT NOT NULL,
+    added_client_id BIGINT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     int_delete_flag TINYINT DEFAULT 0,
     PRIMARY KEY (npat_id),
-    FOREIGN KEY(client_id) REFERENCES np_client_table(npct_id)
+    FOREIGN KEY(client_id) REFERENCES np_client_table(npct_id),
+    FOREIGN KEY(added_client_id) REFERENCES np_client_table(npct_id)
 );
 
 --?ADD DATA TO APPOINTMENT TABLE
@@ -24,7 +26,7 @@ INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of
 
 --?SELECT DATA FROM APPOINTMENT TABLE
 
-SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.alternate_mobile_num, np_client_table.country_code, np_client_table.email, np_appointment_table.client_type,
 np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND client_id = ?;
 
 --?GET ALL APPOINTMENTS BETWEEN SPECIFIC DATE
@@ -52,6 +54,9 @@ UPDATE `np_appointment_table` SET `client_type` = ?, `appointment_for` = ?, `pac
 -- ?Delete a record from table
 
 UPDATE `np_appointment_table` SET `int_delete_flag` = 1 WHERE npat_id = ?;
+
+-- ?ADD USER TO EXISTING APPOINTMENT
+UPDATE `np_appointment_table` SET  `added_client_id` = ? WHERE `npat_id` = ? AND `int_delete_flag` = 0;
 
 -- ?All count of all registrations for a date
 
@@ -87,6 +92,8 @@ CREATE TABLE np_client_table (
     email LONGTEXT NOT NULL,
     dob DATE NOT NULL,
     mobile_num LONGTEXT NOT NULL,
+    alternate_mobile_num LONGTEXT NOT NULL,
+    country_code LONGTEXT NOT NULL,
     country_name LONGTEXT NOT NULL,
     state_name LONGTEXT NOT NULL,
     city_name LONGTEXT NOT NULL,
@@ -193,9 +200,9 @@ UPDATE np_client_health_table SET int_delete_flag = 1 WHERE client_id = ?;
 
 CREATE TABLE np_client_vitamins (
     npcv_id BIGINT NOT NULL AUTO_INCREMENT, 
-    vitamin_name LONGTEXT NOT NULL,
-    vitamin_dosage LONGTEXT NOT NULL,
-    vitamin_timing LONGTEXT NOT NULL,
+    vitamin_name LONGTEXT,
+    vitamin_dosage LONGTEXT,
+    vitamin_timing LONGTEXT,
     client_id BIGINT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -217,11 +224,12 @@ SELECT np_client_table.name, np_client_vitamins.vitamin_name, np_client_vitamins
 
 CREATE TABLE np_client_family_med_history (
     npcfmh_id BIGINT NOT NULL AUTO_INCREMENT,
-    mother JSON NOT NULL,
-    father JSON NOT NULL,
-    brother JSON NOT NULL,
-    sister JSON NOT NULL,
-    grandparent JSON NOT NULL,
+    diabetes JSON NOT NULL,
+    hypertension JSON NOT NULL,
+    heart_disease JSON NOT NULL,
+    hypothyroid JSON NOT NULL,
+    cancer JSON NOT NULL,
+    overweight JSON NOT NULL,
     client_id BIGINT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -231,14 +239,14 @@ CREATE TABLE np_client_family_med_history (
 );
 
 --? INSERT CLIENT'S FAMILY MEDICAL HISTORY
-INSERT INTO np_client_family_med_history (mother, father, brother, sister, grandparent, client_id) VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO np_client_family_med_history (diabetes, hypertension, heart_disease, hypothyroid, cancer, overweight,client_id) VALUES (?, ?, ?, ?, ?, ?, ?);
 
 --?GET CLIENT FAMILT MEDICAL HISTORY
-SELECT mother, father, brother, sister, grandparent FROM np_client_family_med_history WHERE int_delete_flag = 0 AND client_id = ?;
+SELECT diabetes, hypertension, heart_disease, hypothyroid, cancer, overweight FROM np_client_family_med_history WHERE int_delete_flag = 0 AND client_id = ?;
 
 --?JOIN CLIENT TABLE AND CLIENT FAMILY MEDICAL HISTORY
-SELECT np_client_table.name, np_client_family_med_history.mother, np_client_family_med_history.father, np_client_family_med_history.brother,
-np_client_family_med_history.sister, np_client_family_med_history.grandparent FROM np_client_table INNER JOIN np_client_family_med_history WHERE npct_id = client_id AND client_id = ?;
+SELECT np_client_table.name, np_client_family_med_history.diabetes, np_client_family_med_history.hypertension, np_client_family_med_history.heart_disease,
+np_client_family_med_history.hypothyroid, np_client_family_med_history.cancer, np_client_family_med_history.overweight FROM np_client_table INNER JOIN np_client_family_med_history WHERE npct_id = client_id AND client_id = ?;
 
 --?DELETE CLIENT'S FAMILT MEDICAL HISTORY
 UPDATE np_client_family_med_history SET int_delete_flag = 0 WHERE client_id = ?;
@@ -270,3 +278,35 @@ INSERT INTO np_avg_eating_pattern (breakfast, lunch, snacks, dinner, client_id) 
 SELECT np_client_table.npct_id, np_avg_eating_pattern.breakfast, np_avg_eating_pattern.breakfast_detail, np_avg_eating_pattern.lunch,
 np_avg_eating_pattern.lunch_detail, np_avg_eating_pattern.snacks, np_avg_eating_pattern.snacks_detail, np_avg_eating_pattern.dinner,
 np_avg_eating_pattern.dinner_detail FROM np_client_table INNER JOIN np_avg_eating_pattern ON np_client_table.npct_id = client_id AND client_id = ?;
+
+
+CREATE TABLE np_country_table (
+    npct_id BIGINT NOT NULL AUTO_INCREMENT,
+    name LONGTEXT NOT NULL,
+    PRIMARY KEY (npct_id)
+);
+
+INSERT INTO np_country_table (name) VALUES (?);
+
+SELECT name FROM np_country_table;
+
+CREATE TABLE np_state_table (
+    npst_id BIGINT NOT NULL AUTO_INCREMENT,
+    name LONGTEXT NOT NULL,
+    country_name LONGTEXT NOT NULL,
+    PRIMARY KEY (npst_id)
+);
+
+INSERT INTO np_state_table (name, country_name) VALUES (?, ?);
+
+SELECT name FROM np_state_table WHERE country_name = ?;
+
+CREATE TABLE np_city_table (
+    npct_id BIGINT NOT NULL AUTO_INCREMENT,
+    name LONGTEXT NOT NULL,
+    country_name LONGTEXT NOT NULL,
+    state_name LONGTEXT NOT NULL,
+    PRIMARY KEY (npct_id)
+);
+
+SELECT name FROM np_city_table WHERE country_name = ? AND state_name = ?;
