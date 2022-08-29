@@ -43,6 +43,10 @@ app.get("/appointments/:id/add-client", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.get("/client-data", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+})
+
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);
 });
