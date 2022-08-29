@@ -25,6 +25,10 @@ const setAppointment_xhr = asyncHandler(async (req, res) => {
     date_of_appointment,
     client_id
   } = req.body;
+  if (!client_id){
+	res.status(400).json({error: true, message: "This user is not a registered user"})
+	throw new Error("This user is not a registered user")
+  }
 
   if (
     !client_type ||
