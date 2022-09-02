@@ -15,9 +15,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/appointments", require("./routes/appointmentRoutes"));
-app.use("/api/address", require('./routes/addressRoutes'))
+app.use("/api/address", require("./routes/addressRoutes"));
 app.use("/api/countryCodes", require("./routes/countryCodeRoutes"));
-app.use("/api/clients", require('./routes/clientRoutes'));
+app.use("/api/clients", require("./routes/clientRoutes"));
+app.use("/api/smsService", require("./routes/smsRoutes"));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -44,8 +45,12 @@ app.get("/appointments/:id/add-client", (req, res) => {
 });
 
 app.get("/client-data", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"))
-})
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/client-registration/send-link", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);

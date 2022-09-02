@@ -57,6 +57,6 @@ const insertCity = () => {
 }
 
 connectDB()
-// insertCountries()
+//insertCountries()
 // insertStates()
-// insertCity()
+insertCity()

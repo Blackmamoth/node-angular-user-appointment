@@ -31,7 +31,6 @@ const insertCodes = () => {
     });
   });
 };
+//insertCodes();
 
-// insertCodes();
-
-// connectDB();
+//connectDB();
