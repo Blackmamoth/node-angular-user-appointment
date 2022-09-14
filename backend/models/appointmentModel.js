@@ -1,7 +1,13 @@
 const { db } = require("../config/db");
 
 class Appointment {
-  constructor(client_type, appointment_for, package_name, date_of_appointment, client_id) {
+  constructor(
+    client_type,
+    appointment_for,
+    package_name,
+    date_of_appointment,
+    client_id
+  ) {
     this.client_type = client_type;
     this.appointment_for = appointment_for;
     this.package_name = package_name;
@@ -66,8 +72,7 @@ class Appointment {
 
   static getAppointmentsBetweenDates(date1, date2) {
     return new Promise((resolve, reject) => {
-      const query =
-        `SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+      const query = `SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
         np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND DATE(date_of_appointment) BETWEEN ? AND ?;`;
       const dates = [date1, date2];
       db.query(query, dates, (err, results) => {
@@ -113,8 +118,7 @@ class Appointment {
 
   static getAppointments() {
     return new Promise((resolve, reject) => {
-      const query =
-        `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+      const query = `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_client_table.about_client, np_appointment_table.client_type, np_appointment_table.status, np_appointment_table.payment_status, np_appointment_table.check_in, np_appointment_table.check_out,
         np_appointment_table.appointment_for, np_appointment_table.added_client_id,np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 ORDER BY date_of_appointment;`;
       db.query(query, (err, results) => {
         if (err) reject(err.message);
@@ -125,8 +129,7 @@ class Appointment {
 
   static getAppointment(id) {
     return new Promise((resolve, reject) => {
-      const query =
-        `SELECT np_appointment_table.npat_id, np_client_table.alternate_mobile_num ,np_client_table.name, np_client_table.country_code ,np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
+      const query = `SELECT np_appointment_table.npat_id, np_client_table.alternate_mobile_num ,np_client_table.name, np_client_table.country_code ,np_client_table.mobile_num, np_client_table.email, np_client_table.about_client,np_appointment_table.client_type,  np_appointment_table.status, np_appointment_table.payment_status, np_appointment_table.check_in, np_appointment_table.check_out,
         np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND np_appointment_table.int_delete_flag = 0 AND npat_id = ?;`;
       db.query(query, [id], (err, results) => {
         if (err) reject(err.message);
@@ -248,9 +251,9 @@ class Appointment {
     for (let appointment of appointments) {
       if (
         appointment.date_of_appointment.getDate() ===
-        this.date_of_appointment.getDate() &&
+          this.date_of_appointment.getDate() &&
         appointment.date_of_appointment.getHours() ===
-        this.date_of_appointment.getHours()
+          this.date_of_appointment.getHours()
       ) {
         if (
           appointment.date_of_appointment.getMinutes() ===
@@ -284,8 +287,7 @@ class Appointment {
         reject("The day you're trying to set an appointment on is a holiday");
         return;
       }
-      const query =
-        `INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of_appointment, client_id) VALUES (?, ?, ?, ?, ?);`
+      const query = `INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of_appointment, client_id) VALUES (?, ?, ?, ?, ?);`;
       db.query(query, this.values, (err, results) => {
         if (err) {
           reject({ error: err.message, success: false });

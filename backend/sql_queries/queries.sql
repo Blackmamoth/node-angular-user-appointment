@@ -12,13 +12,17 @@ CREATE TABLE np_appointment_table (
     date_of_appointment DATETIME NOT NULL,
     client_id BIGINT NOT NULL,
     added_client_id BIGINT,
+    status ENUM('CONFIRM', 'RESCHEDULE', 'CANCEL', 'REMOVE') NOT NULL DEFAULT 'CONFIRM',
+    check_in DATETIME,
+    check_out DATETIME,
+    payment_status ENUM('PAID', 'UNPAID', 'COMPLEMENTARY', 'REFUND') DEFAULT 'UNPAID',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     int_delete_flag TINYINT DEFAULT 0,
     PRIMARY KEY (npat_id),
     FOREIGN KEY(client_id) REFERENCES np_client_table(npct_id),
     FOREIGN KEY(added_client_id) REFERENCES np_client_table(npct_id)
-);
+);	
 
 --?ADD DATA TO APPOINTMENT TABLE
 
@@ -26,7 +30,7 @@ INSERT INTO np_appointment_table (client_type, appointment_for, package, date_of
 
 --?SELECT DATA FROM APPOINTMENT TABLE
 
-SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.alternate_mobile_num, np_client_table.country_code, np_client_table.email, np_appointment_table.client_type,
+SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.alternate_mobile_num, np_client_table.country_code, np_client_table.email, np_appointment_table.client_type, np_appointment_table.status, np_appointment_table.payment_status, np_appointment_table.check_in, np_appointment_table.check_out,
 np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND client_id = ?;
 
 --?GET ALL APPOINTMENTS BETWEEN SPECIFIC DATE
