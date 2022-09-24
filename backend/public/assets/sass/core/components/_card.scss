@@ -3,14 +3,14 @@
 //
 
 // Base
-.card {    
+.card {
     @if ($card-border-enabled)  {
         border: $card-border-width $card-border-style var(--kt-card-border-color);
     } @else {
         border: 0;
-    }  
-    
-    box-shadow: var(--kt-card-box-shadow); 
+    }
+
+    box-shadow: var(--kt-card-box-shadow);
     background-color: var(--kt-card-bg);
 
     // Header
@@ -168,7 +168,7 @@
             border-top: 0 !important;
         }
     }
-    
+
     // Enable shadow
     &.card-shadow {
         box-shadow: var(--kt-card-box-shadow);
@@ -199,27 +199,27 @@
 
             // Stretch
             &.card#{$infix}-stretch {
-                height: calc(100% - var(--bs-gutter-y));
+                height: calc(100% - var(--kt-gutter-y));
             }
 
             // Stretch 75
             &.card#{$infix}-stretch-75 {
-                height: calc(75% - var(--bs-gutter-y));
+                height: calc(75% - var(--kt-gutter-y));
             }
 
             // Stretch 50
             &.card#{$infix}-stretch-50 {
-                height: calc(50% - var(--bs-gutter-y));
+                height: calc(50% - var(--kt-gutter-y));
             }
 
              // Stretch 33
             &.card#{$infix}-stretch-33 {
-                height: calc(33.333% - var(--bs-gutter-y));
+                height: calc(33.333% - var(--kt-gutter-y));
             }
 
             // Stretch 25
             &.card#{$infix}-stretch-25 {
-                height: calc(25% - var(--bs-gutter-y));
+                height: calc(25% - var(--kt-gutter-y));
             }
 
             // Header stretch
@@ -227,7 +227,7 @@
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
                 align-items: stretch;
-    
+
                 .card-toolbar {
                     margin: 0;
                     align-items: stretch;

@@ -72,8 +72,8 @@ class Appointment {
 
   static getAppointmentsBetweenDates(date1, date2) {
     return new Promise((resolve, reject) => {
-      const query = `SELECT np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_appointment_table.client_type,
-        np_appointment_table.appointment_for, np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND DATE(date_of_appointment) BETWEEN ? AND ?;`;
+      const query = `SELECT np_appointment_table.npat_id, np_client_table.name, np_client_table.mobile_num, np_client_table.email, np_client_table.about_client, np_appointment_table.client_type, np_appointment_table.status, np_appointment_table.payment_status, np_appointment_table.check_in, np_appointment_table.check_out,
+      np_appointment_table.appointment_for, np_appointment_table.added_client_id,np_appointment_table.package,np_appointment_table.date_of_appointment FROM np_client_table INNER JOIN np_appointment_table ON npct_id = client_id AND DATE(date_of_appointment) BETWEEN ? AND ?;`;
       const dates = [date1, date2];
       db.query(query, dates, (err, results) => {
         if (err) {
